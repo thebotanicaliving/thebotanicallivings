@@ -1,0 +1,355 @@
+{
+  "entities": {
+    "GalleryItem": {
+      "title": "GalleryItem",
+      "description": "Represents a media item in the botanical living gallery",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "imageUrl": { "type": "string", "maxLength": 2048 },
+        "title": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string", "maxLength": 1024 },
+        "category": { "type": "string", "maxLength": 128 },
+        "displayOrder": { "type": "number" },
+        "type": { "type": "string", "enum": ["image", "video"] }
+      },
+      "required": ["id", "imageUrl", "title", "category", "displayOrder", "type"]
+    },
+    "Room": {
+      "title": "Room",
+      "description": "Represents a botanical living sharing suite / room details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "slug": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string", "maxLength": 2048 },
+        "coverImage": { "type": "string", "maxLength": 2048 },
+        "gallery": { "type": "array" },
+        "occupancy": { "type": "number" },
+        "pricing": { "type": "string", "maxLength": 128 },
+        "amenities": { "type": "array" },
+        "services": { "type": "array" },
+        "availabilityId": { "type": "string", "maxLength": 128 },
+        "featured": { "type": "boolean" },
+        "displayOrder": { "type": "number" }
+      },
+      "required": [
+        "id",
+        "slug",
+        "title",
+        "description",
+        "coverImage",
+        "gallery",
+        "occupancy",
+        "pricing",
+        "amenities",
+        "services",
+        "availabilityId",
+        "featured",
+        "displayOrder"
+      ]
+    },
+    "RoomAvailability": {
+      "title": "RoomAvailability",
+      "description": "Represents live booking availability for a room type",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["Available", "Limited", "Sold Out"] },
+        "availableRooms": { "type": "number" },
+        "totalRooms": { "type": "number" },
+        "lastUpdated": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["roomId", "status", "availableRooms", "totalRooms", "lastUpdated"]
+    },
+    "Blog": {
+      "title": "Blog",
+      "description": "Represents a dynamic botanical living journal post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "slug": { "type": "string", "maxLength": 128 },
+        "excerpt": { "type": "string", "maxLength": 1024 },
+        "content": { "type": "string", "maxLength": 65536 },
+        "coverImage": { "type": "string", "maxLength": 2048 },
+        "category": { "type": "string", "maxLength": 128 },
+        "tags": { "type": "array" },
+        "author": { "type": "string", "maxLength": 128 },
+        "published": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "readingTime": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": [
+        "id",
+        "title",
+        "slug",
+        "excerpt",
+        "content",
+        "coverImage",
+        "category",
+        "tags",
+        "author",
+        "published",
+        "featured",
+        "readingTime",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "BookingRequest": {
+      "title": "BookingRequest",
+      "description": "A user-submitted room booking/enquiry request",
+      "type": "object",
+      "properties": {
+        "firstName": { "type": "string", "maxLength": 128 },
+        "lastName": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "whatsapp": { "type": "string", "maxLength": 32 },
+        "email": { "type": "string", "maxLength": 256 },
+        "roomType": { "type": "string", "maxLength": 128 },
+        "checkInDate": { "type": "string", "maxLength": 64 },
+        "duration": { "type": "string", "maxLength": 64 },
+        "guestsCount": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 2048 },
+        "status": { "type": "string", "enum": ["pending", "reviewed"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": [
+        "firstName",
+        "lastName",
+        "phone",
+        "whatsapp",
+        "email",
+        "roomType",
+        "checkInDate",
+        "duration",
+        "guestsCount",
+        "status",
+        "createdAt"
+      ]
+    },
+    "ContactRequest": {
+      "title": "ContactRequest",
+      "description": "A user-submitted WhatsApp/contact form query",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 256 },
+        "email": { "type": "string", "maxLength": 256 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "subject": { "type": "string", "maxLength": 256 },
+        "message": { "type": "string", "maxLength": 2048 },
+        "status": { "type": "string", "enum": ["pending", "reviewed"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["name", "email", "phone", "subject", "message", "status", "createdAt"]
+    },
+    "FAQItem": {
+      "title": "FAQItem",
+      "description": "A frequently asked question and answer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "question": { "type": "string", "maxLength": 512 },
+        "answer": { "type": "string", "maxLength": 2048 },
+        "category": { "type": "string", "maxLength": 128 },
+        "displayOrder": { "type": "number" }
+      },
+      "required": ["id", "question", "answer", "category", "displayOrder"]
+    },
+    "HotelConfig": {
+      "title": "HotelConfig",
+      "description": "Central eco-luxury hospitality platform settings",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 256 },
+        "shortName": { "type": "string", "maxLength": 128 },
+        "tagline": { "type": "string", "maxLength": 512 },
+        "slogan": { "type": "string", "maxLength": 512 },
+        "description": { "type": "string", "maxLength": 2048 },
+        "location": { "type": "object" },
+        "contact": { "type": "object" },
+        "accommodation": { "type": "object" },
+        "amenities": { "type": "array" },
+        "services": { "type": "array" },
+        "cafe": { "type": "object" },
+        "logoUrl": { "type": "string", "maxLength": 2048 },
+        "virtualTourUrl": { "type": "string", "maxLength": 2048 }
+      },
+      "required": [
+        "name",
+        "shortName",
+        "tagline",
+        "slogan",
+        "description",
+        "location",
+        "contact",
+        "accommodation",
+        "amenities",
+        "services",
+        "cafe"
+      ]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Represents an advance or full payment transaction for a room booking",
+      "type": "object",
+      "properties": {
+        "bookingId": { "type": "string", "maxLength": 128 },
+        "bookingRef": { "type": "string", "maxLength": 128 },
+        "paymentId": { "type": "string", "maxLength": 128 },
+        "orderId": { "type": "string", "maxLength": 128 },
+        "signature": { "type": "string", "maxLength": 256 },
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "status": { "type": "string", "enum": ["pending", "paid", "failed", "refunded", "cancelled"] },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["bookingId", "bookingRef", "paymentId", "orderId", "amount", "currency", "status", "timestamp"]
+    },
+    "BlockedDate": {
+      "title": "BlockedDate",
+      "description": "Represents a date range during which a room is blocked from public bookings",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "maxLength": 128 },
+        "roomTitle": { "type": "string", "maxLength": 256 },
+        "startDate": { "type": "string", "maxLength": 10 },
+        "endDate": { "type": "string", "maxLength": 10 },
+        "reason": { "type": "string", "enum": ["Maintenance", "Private Use", "Cleaning", "VIP Reservation"] },
+        "notes": { "type": "string", "maxLength": 2048 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["roomId", "roomTitle", "startDate", "endDate", "reason", "notes", "createdAt"]
+    },
+    "PricingRules": {
+      "title": "PricingRules",
+      "description": "Custom dynamic pricing parameters per room type",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "maxLength": 128 },
+        "basePrice": { "type": "number" },
+        "weekendPrice": { "type": "number" },
+        "holidayPrice": { "type": "number" },
+        "extraAdultPrice": { "type": "number" },
+        "extraChildPrice": { "type": "number" },
+        "discountPercent": { "type": "number" },
+        "taxesPercent": { "type": "number" },
+        "cleaningFee": { "type": "number" },
+        "platformFee": { "type": "number" },
+        "securityDeposit": { "type": "number" },
+        "advancePercent": { "type": "number" },
+        "minimumStay": { "type": "number" },
+        "maximumStay": { "type": "number" },
+        "cancellationWindow": { "type": "number" },
+        "refundRules": { "type": "string", "maxLength": 2048 }
+      },
+      "required": ["roomId", "basePrice", "weekendPrice", "holidayPrice", "extraAdultPrice", "extraChildPrice", "discountPercent", "taxesPercent", "cleaningFee", "platformFee", "securityDeposit", "advancePercent"]
+    },
+    "BookingHistory": {
+      "title": "BookingHistory",
+      "description": "An audit log trace of operations performed on a booking",
+      "type": "object",
+      "properties": {
+        "bookingId": { "type": "string", "maxLength": 128 },
+        "bookingRef": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 128 },
+        "performedBy": { "type": "string", "enum": ["customer", "admin"] },
+        "notes": { "type": "string", "maxLength": 2048 },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["bookingId", "bookingRef", "action", "performedBy", "notes", "timestamp"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Represents user reviews for the home page testimonials",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "maxLength": 128 },
+        "stayType": { "type": "string", "maxLength": 128 },
+        "quote": { "type": "string", "maxLength": 1024 },
+        "rating": { "type": "number" },
+        "date": { "type": "string", "maxLength": 64 },
+        "initials": { "type": "string", "maxLength": 10 },
+        "displayOrder": { "type": "number" },
+        "published": { "type": "boolean" }
+      },
+      "required": ["name", "role", "stayType", "quote", "rating", "date", "initials", "displayOrder"]
+    },
+    "AdminCredential": {
+      "title": "AdminCredential",
+      "description": "Represents an authorized administrator credential record",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "name": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["Administrator", "Manager", "Editor"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email", "name", "role", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": "AdminCredential",
+      "description": "Authorized administrator credentials for CMS access control"
+    },
+    "/gallery/{itemId}": {
+      "schema": "GalleryItem",
+      "description": "High-fidelity organic image and cinematic video references"
+    },
+    "/rooms/{roomId}": {
+      "schema": "Room",
+      "description": "Premium botanical room configuration, occupancy, and details"
+    },
+    "/roomAvailability/{roomId}": {
+      "schema": "RoomAvailability",
+      "description": "Live, real-time booking availability tracking"
+    },
+    "/blogs/{blogId}": {
+      "schema": "Blog",
+      "description": "Published journal posts and design inspirations"
+    },
+    "/bookingRequests/{requestId}": {
+      "schema": "BookingRequest",
+      "description": "Submissions for room reservations and bookings"
+    },
+    "/contactRequests/{requestId}": {
+      "schema": "ContactRequest",
+      "description": "Inbound general contact and lead form entries"
+    },
+    "/faq/{faqId}": {
+      "schema": "FAQItem",
+      "description": "Frequently asked questions for user clarification"
+    },
+    "/hotel/{configId}": {
+      "schema": "HotelConfig",
+      "description": "Global config and master metadata settings for Botanical Living"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Secure record of billing advance/full checkout transactions"
+    },
+    "/blockedDates/{blockedId}": {
+      "schema": "BlockedDate",
+      "description": "Date intervals closed for repair or VIP stays"
+    },
+    "/pricingRules/{ruleId}": {
+      "schema": "PricingRules",
+      "description": "Room type fee structure rules"
+    },
+    "/bookingHistory/{historyId}": {
+      "schema": "BookingHistory",
+      "description": "Audit logging for critical updates on reservations"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Customer feedback and reviews for the testimonial slider"
+    }
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "rooms": [
+    {
+      "id": "single-sharing",
+      "slug": "single-sharing",
+      "title": "Single Sharing Suite",
+      "shortDescription": "A private sanctuary designed for the modern professional seeking comfort and focus.",
+      "description": "Our Single Sharing Suite offers complete privacy with premium furnishings and an en-suite bathroom. Experience tranquility in a space designed exclusively for you, featuring a dedicated workspace, ample storage, and abundant natural light.\n\n### Room Features\n- Premium queen-size bed with orthopedic mattress\n- Dedicated workstation with ergonomic chair\n- En-suite bathroom with premium fixtures\n- Floor-to-ceiling windows for natural light\n- Spacious built-in wardrobe\n- Smart climate control\n\n### Included Services\n- Daily housekeeping\n- High-speed Wi-Fi\n- All utility bills included\n- 24/7 security & support",
+      "price": "₹28,500",
+      "priceSuffix": "per month",
+      "occupancy": "1 Resident",
+      "roomSize": "220 sq ft",
+      "maxCapacity": 1,
+      "currentResidents": 0,
+      "featured": true,
+      "published": true,
+      "displayOrder": 1,
+      "coverImage": "https://images.unsplash.com/photo-1522771731570-01020f5c010c?q=80&w=1200&auto=format&fit=crop",
+      "gallery": [
+        "https://images.unsplash.com/photo-1522771731570-01020f5c010c?q=80&w=1200&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop"
+      ],
+      "amenities": ["Air Conditioning", "En-suite Bathroom", "Workspace", "Smart TV", "Mini Fridge"],
+      "services": ["Daily Housekeeping", "Laundry Service", "High-Speed WiFi"]
+    },
+    {
+      "id": "two-sharing",
+      "slug": "two-sharing",
+      "title": "Two Sharing Suite",
+      "shortDescription": "A thoughtfully partitioned space that balances companionship with personal privacy.",
+      "description": "The Two Sharing Suite is intelligently designed to provide distinct personal zones while sharing a larger premium space. Perfect for colleagues or friends, it offers separate workspaces and wardrobes while maintaining our high standards of luxury living.\n\n### Room Features\n- Two premium single beds with orthopedic mattresses\n- Dual dedicated workstations\n- Shared en-suite bathroom with dual vanities\n- Individual built-in wardrobes\n- Smart climate control\n\n### Included Services\n- Daily housekeeping\n- High-speed Wi-Fi\n- All utility bills included\n- 24/7 security & support",
+      "price": "₹16,500",
+      "priceSuffix": "per month",
+      "occupancy": "2 Residents",
+      "roomSize": "350 sq ft",
+      "maxCapacity": 2,
+      "currentResidents": 0,
+      "featured": true,
+      "published": true,
+      "displayOrder": 2,
+      "coverImage": "https://images.unsplash.com/photo-1598928506311-c55dd580e22a?q=80&w=1200&auto=format&fit=crop",
+      "gallery": [
+        "https://images.unsplash.com/photo-1598928506311-c55dd580e22a?q=80&w=1200&auto=format&fit=crop"
+      ],
+      "amenities": ["Air Conditioning", "En-suite Bathroom", "Dual Workspaces", "Smart TV"],
+      "services": ["Daily Housekeeping", "Laundry Service", "High-Speed WiFi"]
+    }
+  ],
+  "faq": [
+    {
+      "id": "faq-1",
+      "question": "What is included in the monthly rent?",
+      "answer": "Your monthly rent is all-inclusive. It covers your fully furnished accommodation, three nutritious meals daily, high-speed Wi-Fi, daily housekeeping, laundry services, electricity, water, and access to all common amenities.",
+      "category": "general",
+      "published": true,
+      "displayOrder": 1
+    },
+    {
+      "id": "faq-2",
+      "question": "What is the minimum stay duration?",
+      "answer": "We maintain a minimum stay requirement of 3 months to foster a stable community environment. For shorter stays, please contact our management team directly.",
+      "category": "general",
+      "published": true,
+      "displayOrder": 2
+    },
+    {
+      "id": "faq-3",
+      "question": "Is there a security deposit?",
+      "answer": "Yes, we require a security deposit equivalent to one month's rent. This is fully refundable at the end of your stay, subject to our standard terms and conditions.",
+      "category": "rooms",
+      "published": true,
+      "displayOrder": 3
+    }
+  ],
+  "gallery": [
+    {
+      "id": "gallery-1",
+      "title": "The Grand Lobby",
+      "description": "Our welcoming reception and lounge area",
+      "url": "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1200&auto=format&fit=crop",
+      "category": "spaces",
+      "published": true,
+      "displayOrder": 1
+    },
+    {
+      "id": "gallery-2",
+      "title": "Dining Area",
+      "description": "Premium dining experience space",
+      "url": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop",
+      "category": "dining",
+      "published": true,
+      "displayOrder": 2
+    }
+  ],
+  "homepage": [
+    {
+      "id": "config",
+      "heroTitle": "A Premium Botanical Sanctuary for Mindful Living",
+      "heroSubtitle": "Where organic luxury meets flawless convenience in Kondapur, Hyderabad. Uncover spaces crafted for deep focus, rich community, and restorative peace.",
+      "heroVideoUrl": "https://assets.mixkit.co/videos/preview/mixkit-holding-a-small-cactus-plant-41470-large.mp4",
+      "heroPrimaryBtnText": "Secure Your Suite",
+      "heroSecondaryBtnText": "Experience Virtual Tour",
+      "storyTitle": "The Botanical Living Story",
+      "storySubtitle": "A Refined Living Experience Rooted in Biophilia",
+      "storyParagraph1": "We believe that our living environment directly influences our productivity, focus, and personal peace. Created as an antidote to dull, uninspired hostels and traditional chaotic rental spaces, Botanical Living merges natural wooden warmth, abundant organic houseplants, and modern minimalist architecture.",
+      "storyParagraph2": "Every detail is curated to nurture professional drive and spiritual balance.",
+      "storyImageUrl": "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
+      "diningTitle": "Organic & Homely Gastronomy",
+      "diningSubtitle": "Nourishing, Freshly Prepared Meals Served Daily",
+      "diningDescription": "Outsource your meal planning entirely. We serve wholesome, hygienic, freshly prepared meals in-house.",
+      "diningImageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop",
+      "diningHighlights": [
+        "Freshly Prepared Homely Meals Daily",
+        "Nutritionally Balanced Diet Plans",
+        "6 Days Premium Non-Veg Dishes Weekly",
+        "Hygienic Communal Dining Room"
+      ],
+      "locationTitle": "An Oasis in India’s Silicon Valley",
+      "locationSubtitle": "Unmatched Connectivity and Serene Surrounding Gardens",
+      "locationAddress": "Sri Ram Nagar, Botanical Garden Road, Kondapur, Hyderabad",
+      "locationMapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.2755254247855!2d78.3582453!3d17.4465432!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93ef423bc2e9%3A0x67db91c0e3a4e98f!2sBotanical%20Garden%20Rd%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+      "tourTitle": "Unveil Your Future Home",
+      "tourSubtitle": "Take a High-Definition Virtual Journey Through Botanical Living",
+      "tourVideoUrl": "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1920&auto=format&fit=crop"
+    }
+  ],
+  "settings": [
+    {
+      "id": "general",
+      "hotelName": "Botanical Living",
+      "tagline": "Premium Co-Living Sanctuary",
+      "primaryEmail": "hello@botanicalliving.in",
+      "phone": "+91 91000 12345",
+      "whatsapp": "+91 91000 12345",
+      "address": "Sri Ram Nagar, Botanical Garden Road, Kondapur, Hyderabad, 500084",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=...",
+      "googleMapsShare": "https://maps.app.goo.gl/botanicalliving",
+      "businessHours": "9:00 AM - 9:00 PM Daily",
+      "instagram": "https://instagram.com/botanical.living"
+    }
+  ]
+}

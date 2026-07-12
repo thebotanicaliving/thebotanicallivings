@@ -1,0 +1,6 @@
+{
+  "name": "Botanical Living & Stays",
+  "description": "A premium eco-luxury hospitality platform inspired by botanical elegance and natural architecture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

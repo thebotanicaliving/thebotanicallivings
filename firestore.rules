@@ -1,0 +1,181 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==========================================
+    // GLOBAL HELPERS & PRIMITIVES
+    // ==========================================
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'instinstsincbusiness@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    // ==========================================
+    // VALIDATION BLUEPRINTS
+    // ==========================================
+    
+    function isValidPendingRequest(data) {
+      return data.status == 'pending' &&
+        (!data.keys().hasAll(['paymentStatus']) || data.paymentStatus != 'paid');
+    }
+
+    function isValidContactRequest(data) {
+      return data.keys().hasAll([
+        'name', 'email', 'phone', 'subject', 'message', 'status', 'createdAt'
+      ]) && 
+      data.keys().size() == 7 &&
+      data.name is string && data.name.size() <= 256 &&
+      data.email is string && data.email.size() <= 256 &&
+      data.phone is string && data.phone.size() <= 32 &&
+      data.subject is string && data.subject.size() <= 256 &&
+      data.message is string && data.message.size() <= 2048 &&
+      data.status == 'pending' &&
+      data.createdAt is string && data.createdAt.size() <= 64;
+    }
+
+    function isValidPaymentRecord(data) {
+      return data.keys().hasAll([
+        'bookingId', 'bookingRef', 'paymentId', 'orderId', 'signature', 
+        'amount', 'currency', 'status', 'timestamp'
+      ]) &&
+      data.status == 'paid' &&
+      data.currency == 'INR' &&
+      data.bookingId is string &&
+      data.bookingRef is string &&
+      data.paymentId is string &&
+      data.orderId is string &&
+      data.signature is string;
+    }
+
+    function isValidHistoryRecord(data) {
+      return data.keys().hasAll([
+        'bookingId', 'bookingRef', 'action', 'performedBy', 'notes', 'timestamp'
+      ]) &&
+      data.performedBy == 'customer' &&
+      data.bookingId is string &&
+      data.bookingRef is string &&
+      data.action is string &&
+      data.notes is string;
+    }
+
+    // ==========================================
+    // DEFAULT-DENY CATCH-ALL (Global Safety Net)
+    // ==========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ==========================================
+    // ROUTE-SPECIFIC RULES
+    // ==========================================
+
+    // 1. Gallery collection - public read, admin write
+    match /gallery/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(itemId);
+    }
+
+    // 2. Rooms collection - public read, admin write
+    match /rooms/{roomId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(roomId);
+    }
+
+    // 3. Room Availability collection - public read, admin write
+    match /roomAvailability/{roomId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(roomId);
+    }
+
+    // 4. Blogs collection - public read, admin write
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(blogId);
+    }
+
+    // 5. Booking Requests - customers can create pending enquiries, admins have full control, public can read
+    match /bookingRequests/{requestId} {
+      allow create: if isValidId(requestId) && (isAdmin() || isValidPendingRequest(request.resource.data));
+      allow read: if true;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 6. Contact Requests - anyone can submit (create), only admins can view/manage (PII protection)
+    match /contactRequests/{requestId} {
+      allow create: if isValidId(requestId) && isValidContactRequest(request.resource.data);
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 7. FAQs collection - public read, admin write
+    match /faq/{faqId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(faqId);
+    }
+
+    // 8. Global Hotel Config - public read, admin write
+    match /hotel/{configId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(configId);
+    }
+
+    // 9. Admins list - only authenticated admins can manage
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidId(adminId);
+    }
+
+    // 10. Settings collection - public read, admin write
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(settingId);
+    }
+
+    // 11. Homepage collection - public read, admin write
+    match /homepage/{configId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(configId);
+    }
+
+    // 12. Payments - server-side creation (bypasses rules), only admins can write on client
+    match /payments/{paymentId} {
+      allow create: if isValidId(paymentId) && isAdmin();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 13. Blocked Dates - public read (for calendar filtering), admin write
+    match /blockedDates/{blockedId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(blockedId);
+    }
+
+    // 14. Pricing Rules - public read (for price calculation), admin write
+    match /pricingRules/{ruleId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(ruleId);
+    }
+
+    // 15. Booking History - server-side creation (bypasses rules), only admins can write on client
+    match /bookingHistory/{historyId} {
+      allow create: if isValidId(historyId) && isAdmin();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 16. Reviews - public read, admin write
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(reviewId);
+    }
+  }
+}
