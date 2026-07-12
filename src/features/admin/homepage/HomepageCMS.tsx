@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useHomepage } from '@/hooks/useHomepage';
 import { Button } from '@/components/shared';
-import { Save } from 'lucide-react';
+import { Save, ArrowUp, ArrowDown, Trash2, Plus, Image } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { HomepageConfig } from '@/services/homepage.service';
 
@@ -37,11 +37,46 @@ export function HomepageCMS() {
       if (k === 'services') {
         return JSON.stringify(services) !== JSON.stringify(config.services || []);
       }
+      if (k === 'heroImages') {
+        return JSON.stringify(formData.heroImages || []) !== JSON.stringify(config.heroImages || []);
+      }
       const originalValue = config[k] === undefined || config[k] === null ? '' : String(config[k]).trim();
       const currentValue = formData[k] === undefined || formData[k] === null ? '' : String(formData[k]).trim();
       return originalValue !== currentValue;
     })
   ) : false;
+
+  const handleHeroImageChange = (index: number, val: string) => {
+    if (!formData) return;
+    const updatedImages = [...(formData.heroImages || [])];
+    updatedImages[index] = val;
+    setFormData({ ...formData, heroImages: updatedImages });
+  };
+
+  const handleAddHeroImage = () => {
+    if (!formData) return;
+    const updatedImages = [...(formData.heroImages || []), ''];
+    setFormData({ ...formData, heroImages: updatedImages });
+  };
+
+  const handleRemoveHeroImage = (index: number) => {
+    if (!formData) return;
+    const updatedImages = (formData.heroImages || []).filter((_, idx) => idx !== index);
+    setFormData({ ...formData, heroImages: updatedImages });
+  };
+
+  const handleMoveHeroImage = (index: number, direction: 'up' | 'down') => {
+    if (!formData) return;
+    const updatedImages = [...(formData.heroImages || [])];
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= updatedImages.length) return;
+    
+    const temp = updatedImages[index];
+    updatedImages[index] = updatedImages[targetIdx];
+    updatedImages[targetIdx] = temp;
+    
+    setFormData({ ...formData, heroImages: updatedImages });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,10 +124,74 @@ export function HomepageCMS() {
               <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1">Hero Subtitle</label>
               <textarea name="heroSubtitle" value={formData.heroSubtitle || ''} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-gold-accent outline-none text-sm" rows={2} required />
             </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1">Hero Cinematic Video URL</label>
-              <input type="text" name="heroVideoUrl" value={formData.heroVideoUrl || ''} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-gold-accent outline-none text-sm" placeholder="Paste direct .mp4, YouTube, Vimeo, or Google Drive URL" required />
-              <p className="text-[10px] text-text-secondary/60 mt-1">Supports direct .mp4/webm links, YouTube watch/embed links, Vimeo, and Google Drive sharing previews.</p>
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary">Hero Image Carousel (Premium Fading Images)</label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddHeroImage}
+                  className="h-8 text-[10px]"
+                >
+                  <Plus size={14} className="mr-1" /> Add Image
+                </Button>
+              </div>
+              
+              <div className="space-y-3">
+                {(formData.heroImages || []).map((imgUrl, index) => (
+                  <div key={index} className="flex items-start gap-3 p-3 bg-stone-50 rounded-lg border border-border/30">
+                    <div className="flex flex-col gap-1 mt-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveHeroImage(index, 'up')}
+                        disabled={index === 0}
+                        className="p-1 hover:bg-stone-200 rounded disabled:opacity-30 transition-colors"
+                      >
+                        <ArrowUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveHeroImage(index, 'down')}
+                        disabled={index === (formData.heroImages?.length || 0) - 1}
+                        className="p-1 hover:bg-stone-200 rounded disabled:opacity-30 transition-colors"
+                      >
+                        <ArrowDown size={14} />
+                      </button>
+                    </div>
+                    
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={imgUrl}
+                          onChange={(e) => handleHeroImageChange(index, e.target.value)}
+                          placeholder="Image URL (Unsplash or direct link)"
+                          className="flex-1 p-2 border border-border/40 rounded bg-white text-xs outline-none focus:ring-1 focus:ring-gold-accent font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveHeroImage(index)}
+                          className="p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                      {imgUrl && (
+                        <div className="w-32 h-16 rounded border border-border/20 overflow-hidden bg-stone-200">
+                          <img src={imgUrl} alt={`Hero ${index + 1}`} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                
+                {(formData.heroImages || []).length === 0 && (
+                  <div className="text-center py-6 border-2 border-dashed border-border/40 rounded-lg">
+                    <p className="text-xs text-text-secondary">No hero images added. Click "Add Image" to start your carousel.</p>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
