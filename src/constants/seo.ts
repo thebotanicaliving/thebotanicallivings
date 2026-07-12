@@ -15,7 +15,7 @@ export const SeoConfig = {
     title: 'Botanical Living & Stays | Premium Eco-Luxury Co-Living',
     description: 'Bespoke co-living & hospitality rooted in organic architecture and elegant nature-inspired design.',
     type: 'website',
-    url: 'https://botanicalliving.com',
+    url: 'https://thebotanicallivings.com',
     siteName: 'Botanical Living & Stays',
     images: [
       {
