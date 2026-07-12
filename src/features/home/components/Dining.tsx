@@ -97,11 +97,10 @@ export function Dining() {
             <AnimatePresence mode="popLayout">
               <motion.div
                 key={images[0].id}
-                layoutId={`img-container-${images[0].id}`}
-                initial={{ opacity: 0.8 }}
+                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0.8 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
                 className="absolute inset-0 w-full h-full"
               >
                 <img
@@ -133,11 +132,10 @@ export function Dining() {
               <AnimatePresence mode="popLayout">
                 <motion.div
                   key={images[1].id}
-                  layoutId={`img-container-${images[1].id}`}
-                  initial={{ opacity: 0.8 }}
+                  initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0.8 }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
                   className="absolute inset-0 w-full h-full"
                 >
                   <img
@@ -166,11 +164,10 @@ export function Dining() {
               <AnimatePresence mode="popLayout">
                 <motion.div
                   key={images[2].id}
-                  layoutId={`img-container-${images[2].id}`}
-                  initial={{ opacity: 0.8 }}
+                  initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0.8 }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
                   className="absolute inset-0 w-full h-full"
                 >
                   <img

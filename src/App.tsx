@@ -1,20 +1,20 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense, lazy } from 'react';
 import { Routes as RouterRoutes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Navbar, Footer, PageWrapper } from '@/components/layout';
 import { WhatsAppWidget } from '@/components/shared';
-import {
-  Hero,
-  Story,
-  RoomsPreview,
-  AmenitiesPreview,
-  Dining,
-  Lifestyle,
-  Gallery,
-  Testimonials,
-  Location,
-  Faq,
-  FinalCta,
-} from '@/features/home/components';
+import { Hero } from '@/features/home/components/Hero';
+
+// Lazy load below-the-fold components to improve initial page load and RAM usage
+const Story = lazy(() => import('@/features/home/components/Story'));
+const RoomsPreview = lazy(() => import('@/features/home/components/RoomsPreview'));
+const AmenitiesPreview = lazy(() => import('@/features/home/components/AmenitiesPreview'));
+const Dining = lazy(() => import('@/features/home/components/Dining'));
+const Lifestyle = lazy(() => import('@/features/home/components/Lifestyle'));
+const Gallery = lazy(() => import('@/features/home/components/Gallery'));
+const Testimonials = lazy(() => import('@/features/home/components/Testimonials'));
+const Location = lazy(() => import('@/features/home/components/Location'));
+const Faq = lazy(() => import('@/features/home/components/Faq'));
+const FinalCta = lazy(() => import('@/features/home/components/FinalCta'));
 
 // Import newly implemented Phase 2 dynamic pages
 import { RoomsPage } from '@/features/rooms/RoomsPage';
@@ -71,35 +71,37 @@ function HomeView() {
       {/* cinematic landing experience */}
       <Hero />
 
-      {/* philosophy of brand */}
-      <Story />
+      <Suspense fallback={<div className="h-20 bg-dark-forest" />}>
+        {/* philosophy of brand */}
+        <Story />
 
-      {/* luxury suites showcase */}
-      <RoomsPreview />
+        {/* luxury suites showcase */}
+        <RoomsPreview />
 
-      {/* bespoke hospitality amenities */}
-      <AmenitiesPreview />
+        {/* bespoke hospitality amenities */}
+        <AmenitiesPreview />
 
-      {/* culinary experience */}
-      <Dining />
+        {/* culinary experience */}
+        <Dining />
 
-      {/* conscious community collage */}
-      <Lifestyle />
+        {/* conscious community collage */}
+        <Lifestyle />
 
-      {/* editorial aesthetic moments */}
-      <Gallery />
+        {/* editorial aesthetic moments */}
+        <Gallery />
 
-      {/* guest experiences carousel */}
-      <Testimonials />
+        {/* guest experiences carousel */}
+        <Testimonials />
 
-      {/* maps & connectivity context */}
-      <Location />
+        {/* maps & connectivity context */}
+        <Location />
 
-      {/* FAQs list */}
-      <Faq />
+        {/* FAQs list */}
+        <Faq />
 
-      {/* priority reservations call to action */}
-      <FinalCta />
+        {/* priority reservations call to action */}
+        <FinalCta />
+      </Suspense>
     </PageWrapper>
   );
 }
@@ -159,8 +161,8 @@ export default function App() {
 
     window.addEventListener('hero-video-loaded', handleVideoLoaded);
 
-    // Fallback timer: 4.5s for home route (if video loading takes too long), 600ms for other routes to feel snappy
-    const maxTimeout = isHomeRoute ? 4500 : 600;
+    // Fallback timer: 2s for home route (images load fast), 600ms for other routes to feel snappy
+    const maxTimeout = isHomeRoute ? 2000 : 600;
     fallbackTimeout = setTimeout(() => {
       triggerFadeOut(0);
     }, maxTimeout);

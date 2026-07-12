@@ -13,26 +13,25 @@ export function Gallery() {
   // Limit home gallery to exactly 8 cards
   const galleryItems = items && items.length > 0 ? items.slice(0, 8) : [];
 
-
   // Stagger container animation properties for desktop grid
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15,
+        staggerChildren: 0.1,
         delayChildren: 0.1,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 35 },
+    hidden: { opacity: 0, y: 25 },
     show: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.8,
+        duration: 0.6,
         ease: [0.215, 0.61, 0.355, 1] as const,
       },
     },
@@ -42,9 +41,9 @@ export function Gallery() {
   const row1 = galleryItems.slice(0, 4);
   const row2 = galleryItems.slice(4, 8);
 
-  // Duplicate items 8 times to guarantee gapless scrolling on all device widths
-  const duplicatedRow1 = row1.length > 0 ? [...row1, ...row1, ...row1, ...row1, ...row1, ...row1, ...row1, ...row1] : [];
-  const duplicatedRow2 = row2.length > 0 ? [...row2, ...row2, ...row2, ...row2, ...row2, ...row2, ...row2, ...row2] : [];
+  // Duplicate items 3 times (reduced from 8) to guarantee gapless scrolling while saving RAM
+  const duplicatedRow1 = row1.length > 0 ? [...row1, ...row1, ...row1] : [];
+  const duplicatedRow2 = row2.length > 0 ? [...row2, ...row2, ...row2] : [];
 
   // Key event listeners for keyboard navigation in Lightbox
   useEffect(() => {
@@ -125,16 +124,13 @@ export function Gallery() {
                     onClick={() => setActiveItemIndex(originalIdx)}
                     className="w-48 aspect-[3/4] flex-shrink-0 relative overflow-hidden rounded-image bg-stone/20 shadow-subtle border border-border/40 cursor-pointer group"
                   >
-                    {item.type === 'image' ? (
-                       <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                      />
-                    ) : (
-                      <VideoPlayer url={item.imageUrl} controls={false} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" />
-                    )}
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                    />
                     {/* Overlay Title */}
                     <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-dark-forest/90 via-dark-forest/30 to-transparent flex flex-col justify-end">
                       <span className="font-button text-[8px] font-bold tracking-widest text-gold-accent uppercase mb-0.5">
@@ -161,16 +157,13 @@ export function Gallery() {
                     onClick={() => setActiveItemIndex(originalIdx)}
                     className="w-48 aspect-[3/4] flex-shrink-0 relative overflow-hidden rounded-image bg-stone/20 shadow-subtle border border-border/40 cursor-pointer group"
                   >
-                    {item.type === 'image' ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                      />
-                    ) : (
-                      <VideoPlayer url={item.imageUrl} controls={false} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" />
-                    )}
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                    />
                     {/* Overlay Title */}
                     <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-dark-forest/90 via-dark-forest/30 to-transparent flex flex-col justify-end">
                       <span className="font-button text-[8px] font-bold tracking-widest text-gold-accent uppercase mb-0.5">

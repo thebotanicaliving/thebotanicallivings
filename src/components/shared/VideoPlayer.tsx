@@ -304,7 +304,7 @@ export function VideoPlayerComponent({
           muted={true}
           playsInline
           poster={poster}
-          preload="auto"
+          preload="metadata"
         />
         {/* Crisp Native Portrait Video in Center */}
         <div className="relative z-10 h-full max-w-[420px] mx-auto aspect-[9/16] shadow-2xl border border-white/5 rounded-xl overflow-hidden">
@@ -318,7 +318,7 @@ export function VideoPlayerComponent({
             muted={muted}
             playsInline
             poster={poster}
-            preload="auto"
+            preload="metadata"
             onPlaying={handleMediaLoaded}
             onCanPlayThrough={handleMediaLoaded}
             onLoadedData={handleMediaLoaded}
@@ -341,7 +341,7 @@ export function VideoPlayerComponent({
       muted={muted}
       playsInline
       poster={poster}
-      preload="auto"
+      preload="metadata"
       onPlaying={handleMediaLoaded}
       onCanPlayThrough={handleMediaLoaded}
       onLoadedData={handleMediaLoaded}

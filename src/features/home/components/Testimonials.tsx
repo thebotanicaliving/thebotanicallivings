@@ -59,11 +59,11 @@ export function Testimonials() {
   const row1 = publishedReviews.filter((_, idx) => idx % 2 === 0);
   const row2 = publishedReviews.filter((_, idx) => idx % 2 !== 0);
 
-  // Fill rows to at least 10 items to prevent empty space in continuous marquee on ultra-wide screens
+  // Fill rows to at least 4 items (reduced from 10) to save RAM while maintaining loop
   const fillRow = (rowItems: ReviewItem[]) => {
     if (rowItems.length === 0) return [];
     let repeated = [...rowItems];
-    while (repeated.length < 10) {
+    while (repeated.length < 4) {
       repeated = [...repeated, ...rowItems];
     }
     return repeated;

@@ -58,6 +58,7 @@ export function Hero() {
             animate={{ opacity: 0.65 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: 'easeInOut' }}
+            loading={currentIdx === 0 ? "eager" : "lazy"}
             className="absolute inset-0 w-full h-full object-cover"
           />
         </AnimatePresence>
