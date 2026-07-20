@@ -16,7 +16,7 @@ const Lifestyle = lazy(() => import('@/features/home/components/Lifestyle'));
 const Gallery = lazy(() => import('@/features/home/components/Gallery'));
 const Testimonials = lazy(() => import('@/features/home/components/Testimonials'));
 const Location = lazy(() => import('@/features/home/components/Location'));
-const Faq = lazy(() => import('@/features/home/components/FAQ'));
+const Faq = lazy(() => import('@/features/home/components/FAQHome'));
 const FinalCta = lazy(() => import('@/features/home/components/FinalCta'));
 
 // Import newly implemented Phase 2 dynamic pages
@@ -209,12 +209,12 @@ export default function App() {
       {/* Client-side Router views */}
       <RouterRoutes>
         <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminLayout />
           </ProtectedRoute>
         }>
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="rooms" element={<RoomsList />} />
           <Route path="rooms/new" element={<RoomForm />} />
