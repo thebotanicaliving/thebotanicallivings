@@ -386,6 +386,68 @@ export function BookingPage() {
     }
   };
 
+  const handleDemoBypass = async () => {
+    if (!priceDetails || !selectedRoom) {
+      alert('Unable to proceed. Refresh the page.');
+      return;
+    }
+
+    setPaymentProcessing(true);
+    setPaymentError(null);
+
+    try {
+      const bookingRef = await generateSequentialRef();
+      const bookingPayload: any = {
+        bookingRef,
+        roomId: selectedRoomId,
+        checkInDate,
+        checkOutDate,
+        numberOfNights: priceDetails.nights,
+        guestsCount: adultsCount + childrenCount,
+        adultsCount,
+        childrenCount,
+        firstName: guestInfo.firstName,
+        lastName: guestInfo.lastName,
+        phone: guestInfo.phone,
+        whatsapp: guestInfo.whatsapp || guestInfo.phone,
+        email: guestInfo.email,
+        notes: guestInfo.notes,
+        aadhaarNumber: guestInfo.aadhaarNumber,
+        permanentAddress: guestInfo.permanentAddress,
+        selectedFoodOptions: selectedFoodIds,
+        foodAmount: priceDetails.foodAmount,
+        advanceAmount: priceDetails.advanceAmount,
+      };
+
+      const demoResponse = await fetch('/api/create-booking-demo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookingPayload })
+      });
+
+      if (!demoResponse.ok) {
+        const errData = await demoResponse.json().catch(() => ({}));
+        throw new Error(errData.message || errData.error || 'Failed to complete demo booking reservation.');
+      }
+
+      const demoData = await demoResponse.json();
+      if (demoData.status === 'success') {
+        setConfirmedBooking(demoData.booking);
+        setPaymentSuccess(true);
+        setStep(5); // Show Confirmation page directly
+      } else {
+        throw new Error(demoData.error || 'Demo booking completion mismatch.');
+      }
+    } catch (err: any) {
+      console.warn('Demo bypass booking failed.', err);
+      setPaymentError(err?.message || 'Failed to bypass payment in demo mode.');
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
+
   if (roomsLoading) {
     return (
       <div className="min-h-screen pt-32 pb-16 bg-stone-50 flex flex-col items-center justify-center space-y-4">
@@ -964,35 +1026,24 @@ export function BookingPage() {
                     </div>
 
                     {paymentError && (
-                      <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs max-w-md mx-auto text-center font-medium font-sans">
-                        {paymentError}
+                      <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs max-w-md mx-auto text-center font-medium font-sans space-y-3">
+                        <p>{paymentError}</p>
+                        <div className="pt-2 border-t border-red-200/50">
+                          <p className="text-stone-600 text-[11px] font-normal mb-2 leading-relaxed">
+                            Since Razorpay API credentials are not set on your deployed domain yet, you can bypass real payment and complete the reservation in <strong>Demo / Test Mode</strong>.
+                          </p>
+                          <Button
+                            onClick={handleDemoBypass}
+                            variant="primary"
+                            className="w-full px-6 py-2.5 text-[11px] justify-center rounded-lg font-sans bg-amber-800 hover:bg-amber-900 border-none text-white shadow-md font-semibold tracking-wide uppercase"
+                            disabled={paymentProcessing}
+                          >
+                            {paymentProcessing ? 'Processing Sandbox Booking...' : 'Bypass Payment & Confirm Stay'}
+                          </Button>
+                        </div>
                       </div>
                     )}
-
-                    {/* Razorpay Test Mode Guide Card */}
-                    <div className="p-5 bg-stone-50 border border-stone-200 rounded-xl text-left max-w-md mx-auto space-y-3 font-sans shadow-sm">
-                      <h4 className="text-[11px] font-bold text-stone-700 tracking-wider uppercase">Razorpay INR Test Mode Guide</h4>
-                      <p className="text-xs text-stone-600 leading-relaxed">
-                        Since this is a standard Indian test-mode gateway, international test cards (like <code className="bg-stone-200 px-1 py-0.5 rounded text-stone-800 font-mono">4111 1111 1111 1111</code>) are blocked.
-                      </p>
-                      <div className="space-y-2 text-xs text-stone-600 font-medium">
-                        <div className="flex justify-between border-b border-stone-200/60 pb-1.5 items-center">
-                          <span>💳 Domestic Card (Visa):</span>
-                          <span className="font-mono text-dark-forest bg-gold-accent/10 px-2 py-0.5 rounded">4012 0010 3000 0004</span>
-                        </div>
-                        <div className="flex justify-between border-b border-stone-200/60 pb-1.5 items-center">
-                          <span>💳 Domestic Card (Mastercard):</span>
-                          <span className="font-mono text-dark-forest bg-gold-accent/10 px-2 py-0.5 rounded">5124 4500 0000 0001</span>
-                        </div>
-                        <div className="flex justify-between border-b border-stone-200/60 pb-1.5 items-center">
-                          <span>📱 UPI Test ID:</span>
-                          <span className="font-mono text-dark-forest bg-gold-accent/10 px-2 py-0.5 rounded">test@razorpay</span>
-                        </div>
-                        <div className="text-stone-500 font-light text-[11px] pt-1 leading-normal">
-                          💡 You can also choose <strong>Netbanking</strong> or <strong>UPI</strong> inside the overlay and click "Success" to bypass card limits entirely.
-                        </div>
-                      </div>
-                    </div>
+                    {/* Razorpay sandbox bypass helper only shown in case of error */}
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mx-auto pt-4">
                       <Button
@@ -1012,6 +1063,17 @@ export function BookingPage() {
                       >
                         Back
                       </Button>
+                    </div>
+
+                    <div className="pt-2 text-center">
+                      <button
+                        onClick={handleDemoBypass}
+                        type="button"
+                        className="text-stone-400 hover:text-gold-accent transition-colors text-[10px] font-medium tracking-wider uppercase underline underline-offset-4 cursor-pointer"
+                        disabled={paymentProcessing}
+                      >
+                        Bypass to Complete Booking (Sandbox/Demo Mode)
+                      </button>
                     </div>
                   </div>
                 )}

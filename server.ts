@@ -407,6 +407,102 @@ app.post("/api/verify-payment", async (req, res) => {
   }
 });
 
+app.post("/api/create-booking-demo", async (req, res) => {
+  try {
+    const { bookingPayload } = req.body;
+    if (!bookingPayload) {
+      return res.status(400).json({ error: "Missing required booking payload." });
+    }
+
+    // Securely recalculate price details on the server to double-verify with booking payload
+    const securePrices = await calculateServerLivePrice(
+      bookingPayload.roomId,
+      bookingPayload.checkInDate,
+      bookingPayload.checkOutDate,
+      bookingPayload.adultsCount,
+      bookingPayload.childrenCount,
+      bookingPayload.selectedFoodOptions || []
+    );
+
+    // Write directly to Firestore with bypassed / pending validation paymentStatus
+    const batch = writeBatch(db);
+    const roomTitle = await getRoomTitle(bookingPayload.roomId);
+
+    const bookingRequestsCol = collection(db, "bookingRequests");
+    const finalBookingId = bookingPayload.id || doc(bookingRequestsCol).id;
+    const verifiedBookingPayload = {
+      ...bookingPayload,
+      id: finalBookingId,
+      roomTitle,
+      baseAmount: securePrices.baseAmount,
+      extraGuestsAmount: securePrices.extraGuestsAmount,
+      taxesAmount: securePrices.taxesAmount,
+      cleaningFee: securePrices.cleaningFee,
+      platformFee: securePrices.platformFee,
+      securityDeposit: securePrices.securityDeposit,
+      discountAmount: securePrices.discountAmount,
+      grandTotal: securePrices.grandTotal,
+      advanceAmount: securePrices.advanceAmount,
+      paymentStatus: "demo_bypassed",
+      status: "confirmed",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      paymentDetails: {
+        paymentId: "demo_payment_" + Math.random().toString(36).substring(2, 11),
+        orderId: "demo_order_" + Math.random().toString(36).substring(2, 11),
+        signature: "demo_signature_bypassed",
+        paidAt: new Date().toISOString()
+      }
+    };
+
+    const bookingRefDoc = doc(db, "bookingRequests", finalBookingId);
+    batch.set(bookingRefDoc, verifiedBookingPayload);
+
+    // Set payments ledger doc
+    const paymentsCol = collection(db, "payments");
+    const paymentDocId = doc(paymentsCol).id;
+    const paymentPayload = {
+      bookingId: finalBookingId,
+      bookingRef: bookingPayload.bookingRef,
+      paymentId: "demo_payment_" + Math.random().toString(36).substring(2, 11),
+      orderId: "demo_order_" + Math.random().toString(36).substring(2, 11),
+      signature: "demo_signature_bypassed",
+      amount: securePrices.advanceAmount,
+      currency: "INR",
+      status: "bypassed_demo",
+      timestamp: new Date().toISOString()
+    };
+    batch.set(doc(db, "payments", paymentDocId), paymentPayload);
+
+    // Set booking history log
+    const historyCol = collection(db, "bookingHistory");
+    const historyDocId = doc(historyCol).id;
+    const historyPayload = {
+      bookingId: finalBookingId,
+      bookingRef: bookingPayload.bookingRef,
+      action: "Stay Reserved via Demo Mode",
+      performedBy: "customer_demo",
+      notes: `Stay confirmed via Demo Mode bypass. No real credit card was charged.`,
+      timestamp: new Date().toISOString()
+    };
+    batch.set(doc(db, "bookingHistory", historyDocId), historyPayload);
+
+    await batch.commit();
+
+    return res.json({ 
+      status: "success", 
+      message: "Booking confirmed via Demo Mode bypass.",
+      booking: verifiedBookingPayload
+    });
+  } catch (error: any) {
+    console.error("Demo Booking Creation Error:", error);
+    return res.status(500).json({ 
+      error: "Internal Server Error in creating demo booking", 
+      message: error?.message || String(error) 
+    });
+  }
+});
+
 // Vite & Static file serving setup
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
@@ -417,6 +513,12 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    
+    // Explicitly serve index.html for any admin paths first to bypass directory lookup or trailing slash conflicts
+    app.get(["/admin", "/admin/*"], (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
