@@ -9,16 +9,16 @@ import { useToast } from '@/providers/ToastProvider';
 export function MessageDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { messages, loading, refresh } = useMessages();
+  const { messages, loading } = useMessages();
   const { showToast } = useToast();
 
   const msg = messages.find(m => m.id === id);
 
   useEffect(() => {
     if (msg && msg.status === 'pending') {
-      contactService.updateContactStatus(id!, 'reviewed').then(() => refresh());
+      contactService.updateContactStatus(id!, 'reviewed');
     }
-  }, [msg, id, refresh]);
+  }, [msg, id]);
 
   if (loading) return <div className="p-8">Loading...</div>;
   if (!msg) return <div className="p-8 text-center">Message not found</div>;

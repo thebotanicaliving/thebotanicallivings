@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 
 export interface HomepageConfig {
@@ -25,6 +25,12 @@ export interface HomepageConfig {
   diningDescription: string;
   diningImageUrl: string;
   diningHighlights: string[];
+
+  // Cafe
+  cafeTitle?: string;
+  cafeDescription?: string;
+  cafeImageUrl?: string;
+  cafeHighlights?: string[];
 
   // Location / Contact Map
   locationTitle: string;
@@ -81,6 +87,16 @@ export const defaultHomepageConfig: HomepageConfig = {
     'Hygienic Communal Dining Room'
   ],
 
+  cafeTitle: 'The Signature Botanical Café',
+  cafeDescription: 'Perched elegantly on our rooftop, the Botanical Café is our signature sanctuary. Specially designed for software professionals and creators, it offers premium coffee, high-speed connectivity, and magnificent panoramic views of Kondapur.',
+  cafeImageUrl: 'https://images.unsplash.com/photo-1559925393-8be0ec41b504?q=80&w=1200&auto=format&fit=crop',
+  cafeHighlights: [
+    'Rooftop Café Experience',
+    'High-Speed Study/Work Desks',
+    'Organic Brews & Fresh Tiffins',
+    'Magnificent Panoramic Rooftop Views'
+  ],
+
   locationTitle: 'An Oasis in India’s Silicon Valley',
   locationSubtitle: 'Unmatched Connectivity and Serene Surrounding Gardens',
   locationAddress: 'Sri Ram Nagar, Botanical Garden Road, Kondapur, Hyderabad, Telangana, 500084',
@@ -103,6 +119,22 @@ export const defaultHomepageConfig: HomepageConfig = {
 };
 
 export const homepageService = {
+  subscribeHomepageConfig(callback: (config: HomepageConfig) => void) {
+    if (!db) {
+      callback(defaultHomepageConfig);
+      return () => {};
+    }
+
+    const docRef = doc(db, 'homepage', 'config');
+    return onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        callback({ ...defaultHomepageConfig, ...docSnap.data() } as HomepageConfig);
+      } else {
+        callback(defaultHomepageConfig);
+      }
+    });
+  },
+
   async getHomepageConfig(): Promise<HomepageConfig> {
     if (!db) {
       return defaultHomepageConfig;

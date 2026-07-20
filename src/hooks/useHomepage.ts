@@ -6,33 +6,26 @@ export function useHomepage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchConfig = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await homepageService.getHomepageConfig();
-      setConfig(data);
-      setError(null);
-    } catch (err: any) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchConfig();
-  }, [fetchConfig]);
+    setLoading(true);
+    const unsubscribe = homepageService.subscribeHomepageConfig((data) => {
+      setConfig(data);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const updateConfig = async (updates: Partial<HomepageConfig>) => {
     try {
       setLoading(true);
       await homepageService.updateHomepageConfig(updates);
-      await fetchConfig();
     } catch (err: any) {
       setError(err);
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { config, loading, error, refresh: fetchConfig, updateConfig };
+  return { config, loading, error, refresh: () => {}, updateConfig };
 }

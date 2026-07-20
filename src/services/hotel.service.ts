@@ -1,10 +1,26 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import { HotelConfig } from '@/types';
 
 const defaultHotelConfig = {} as HotelConfig;
 
 export const hotelService = {
+  subscribeHotelConfig(callback: (config: HotelConfig) => void) {
+    if (!db) {
+      callback(defaultHotelConfig);
+      return () => {};
+    }
+
+    const docRef = doc(db, 'hotel', 'config');
+    return onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        callback(docSnap.data() as HotelConfig);
+      } else {
+        callback(defaultHotelConfig);
+      }
+    });
+  },
+
   async getHotelConfig(): Promise<HotelConfig> {
     if (!db) {
       console.log('[HotelService] Firebase not initialized. Using local config.');

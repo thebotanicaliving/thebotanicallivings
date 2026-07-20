@@ -10,6 +10,7 @@ import { Heading, Paragraph } from '@/components/shared/Typography';
 import { Button } from '@/components/shared/Button';
 import { AvailabilityBadge } from '@/components/shared/AvailabilityBadge';
 import { Breadcrumb } from '@/components/shared/Breadcrumb';
+import { getDirectMediaUrl } from '@/utils/media';
 
 import { IconWrapper } from '@/components/shared/IconWrapper';
 
@@ -118,7 +119,7 @@ Thank you.`;
           </button>
 
           <img
-            src={room.gallery[lightboxIndex]}
+            src={getDirectMediaUrl(room.gallery[lightboxIndex])}
             alt={`Gallery ${lightboxIndex + 1}`}
             className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl transition-transform duration-300"
           />
@@ -136,7 +137,7 @@ Thank you.`;
       {/* Hero Header Area */}
       <div className="relative h-[45vh] md:h-[60vh] overflow-hidden bg-black">
         <img
-          src={room.coverImage}
+          src={getDirectMediaUrl(room.coverImage)}
           alt={room.title}
           className="w-full h-full object-cover opacity-80 brightness-75 scale-100 transition-all duration-1000"
         />
@@ -183,7 +184,7 @@ Thank you.`;
               <div className="space-y-3">
                 <div className="relative aspect-[16/10] overflow-hidden rounded-[24px] border border-border/30 bg-white">
                   <img
-                    src={activeImage}
+                    src={getDirectMediaUrl(activeImage)}
                     alt={room.title}
                     className="w-full h-full object-cover cursor-zoom-in hover:brightness-95 transition-all duration-300"
                     onClick={() => {
@@ -203,7 +204,7 @@ Thank you.`;
                         activeImage === image ? 'border-gold-accent ring-2 ring-gold-accent/15 scale-[0.98]' : 'border-border/30 hover:opacity-90'
                       }`}
                     >
-                      <img src={image || null} alt="" className="w-full h-full object-cover" />
+                      <img src={getDirectMediaUrl(image) || undefined} alt="" className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
@@ -311,7 +312,7 @@ Thank you.`;
                     <a href={getWhatsAppEnquiryLink()} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" className="w-full text-[10px] tracking-widest uppercase py-2.5 font-bold gap-1.5 justify-center text-emerald-800 border-emerald-200 bg-emerald-50/40 hover:bg-emerald-50">
                         WhatsApp
-                        <IconWrapper name="whatsapp" className="fill-current text-emerald-600" size={13} />
+                        <IconWrapper name="whatsapp" className="text-emerald-600" size={13} />
                       </Button>
                     </a>
                   </div>
@@ -363,7 +364,7 @@ Thank you.`;
                   return (
                     <div key={otherRoom.id} className="bg-white border border-border/30 rounded-card overflow-hidden flex flex-col md:flex-row h-full">
                       <div className="md:w-2/5 relative h-48 md:h-full min-h-[160px]">
-                        <img src={otherRoom.coverImage || null} alt={otherRoom.title} className="w-full h-full object-cover" />
+                        <img src={getDirectMediaUrl(otherRoom.coverImage) || undefined} alt={otherRoom.title} className="w-full h-full object-cover" />
                       </div>
                       <div className="p-5 md:w-3/5 flex flex-col justify-between space-y-4">
                         <div className="space-y-1.5">
@@ -409,7 +410,7 @@ Thank you.`;
         <div className="flex gap-2">
           <a href={getWhatsAppEnquiryLink()} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" className="text-[10px] tracking-widest uppercase font-bold py-2 px-3 border-emerald-200 text-emerald-800 bg-emerald-50">
-              <IconWrapper name="whatsapp" className="fill-current text-emerald-600" size={14} />
+              <IconWrapper name="whatsapp" className="text-emerald-600" size={14} />
             </Button>
           </a>
           

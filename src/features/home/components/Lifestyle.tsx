@@ -62,7 +62,7 @@ export function Lifestyle() {
                   <div className="relative group">
                     <Image
                       src={item.image}
-                      alt={item.title}
+                      alt={`Botanical Living Lifestyle - ${item.title}`}
                       aspectRatio="landscape"
                       radius="image"
                       className="w-full h-full object-cover shadow-sm group-hover:scale-[1.01] transition-transform duration-500"

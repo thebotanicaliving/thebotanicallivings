@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGallery } from '@/hooks/useGallery';
-import { VideoPlayer } from '@/components/shared';
+import { VideoPlayer, Image } from '@/components/shared';
 import { Section } from '@/components/shared/Section';
 import { Container } from '@/components/shared/Container';
 import { Heading, Paragraph } from '@/components/shared/Typography';
@@ -79,9 +79,14 @@ export function GalleryPage() {
           {/* Lightbox media with dynamic reference details */}
           <div className="max-w-[90vw] max-h-[80vh] flex flex-col items-center gap-3">
             {filteredItems[lightboxIndex].type === 'video' ? (
-              <VideoPlayer url={filteredItems[lightboxIndex].imageUrl} controls={false} className="max-w-full max-h-[72vh] object-contain rounded-lg shadow-2xl bg-black" />
+              <VideoPlayer 
+                key={filteredItems[lightboxIndex].id}
+                url={filteredItems[lightboxIndex].imageUrl} 
+                controls={false} 
+                className="max-w-full max-h-[72vh] object-contain rounded-lg shadow-2xl bg-black" 
+              />
             ) : (
-              <img
+              <Image
                 src={filteredItems[lightboxIndex].imageUrl}
                 alt={filteredItems[lightboxIndex].title}
                 className="max-w-full max-h-[72vh] object-contain rounded-lg shadow-2xl"
@@ -179,20 +184,16 @@ export function GalleryPage() {
                   className="group relative aspect-[4/3] rounded-[16px] overflow-hidden border border-border/20 shadow-sm cursor-zoom-in bg-white"
                 >
                   {item.type === 'video' ? (
-                    <img
+                    <Image
                       src={getVideoThumbnail(item.title, item.category)}
                       alt={item.title}
-                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-104 brightness-[0.98] group-hover:brightness-90"
-                      referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <img
+                    <Image
                       src={item.imageUrl}
                       alt={item.title}
-                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-104 brightness-[0.98] group-hover:brightness-90"
-                      referrerPolicy="no-referrer"
                     />
                   )}
                   {/* Play icon overlay for video */}

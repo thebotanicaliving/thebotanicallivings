@@ -4,6 +4,7 @@ import { Section, Container, Heading, Paragraph, IconWrapper } from '@/component
 import { motion, AnimatePresence } from 'motion/react';
 import React, { useState, useEffect } from 'react';
 import { useGallery } from '@/hooks/useGallery';
+import { getDirectMediaUrl } from '@/utils/media';
 
 export function Gallery() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -125,7 +126,7 @@ export function Gallery() {
                     className="w-48 aspect-[3/4] flex-shrink-0 relative overflow-hidden rounded-image bg-stone/20 shadow-subtle border border-border/40 cursor-pointer group"
                   >
                     <img
-                      src={item.imageUrl}
+                      src={getDirectMediaUrl(item.imageUrl)}
                       alt={item.title}
                       loading="lazy"
                       referrerPolicy="no-referrer"
@@ -158,7 +159,7 @@ export function Gallery() {
                     className="w-48 aspect-[3/4] flex-shrink-0 relative overflow-hidden rounded-image bg-stone/20 shadow-subtle border border-border/40 cursor-pointer group"
                   >
                     <img
-                      src={item.imageUrl}
+                      src={getDirectMediaUrl(item.imageUrl)}
                       alt={item.title}
                       loading="lazy"
                       referrerPolicy="no-referrer"
@@ -209,8 +210,8 @@ export function Gallery() {
 
                   {item.type === 'image' ? (
                     <img
-                      src={item.imageUrl}
-                      alt={item.title}
+                      src={getDirectMediaUrl(item.imageUrl)}
+                      alt={`Botanical Living Sanctuary - ${item.title}`}
                       loading="lazy"
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -304,8 +305,8 @@ export function Gallery() {
               >
                 {galleryItems[activeItemIndex].type === 'image' ? (
                   <img
-                    src={galleryItems[activeItemIndex].imageUrl}
-                    alt={galleryItems[activeItemIndex].title}
+                    src={getDirectMediaUrl(galleryItems[activeItemIndex].imageUrl)}
+                    alt={`Botanical Living Sanctuary - ${galleryItems[activeItemIndex].title}`}
                     referrerPolicy="no-referrer"
                     className="max-w-full max-h-full rounded-image object-contain shadow-2xl border border-white/10"
                   />

@@ -8,7 +8,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { ConfirmDialog } from '@/components/admin/dialogs/ConfirmDialog';
 
 export function MessagesList() {
-  const { messages, loading, refresh } = useMessages();
+  const { messages, loading } = useMessages();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const { showToast } = useToast();
@@ -24,7 +24,6 @@ export function MessagesList() {
     try {
       await contactService.updateContactStatus(id, status);
       showToast('Status updated', 'success');
-      refresh();
     } catch (error) {
       showToast('Failed to update status', 'error');
     }
@@ -35,7 +34,6 @@ export function MessagesList() {
     try {
       await contactService.deleteContact(deleteId);
       showToast('Message deleted', 'success');
-      refresh();
     } catch (error) {
       showToast('Failed to delete', 'error');
     } finally {

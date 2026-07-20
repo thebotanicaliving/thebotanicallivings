@@ -7,6 +7,7 @@ import { galleryService } from '@/services/gallery.service';
 import { useToast } from '@/providers/ToastProvider';
 import { ConfirmDialog } from '@/components/admin/dialogs/ConfirmDialog';
 import { GalleryItem } from '@/types';
+import { getDirectMediaUrl } from '@/utils/media';
 
 export function GalleryCMS() {
   const { gallery, loading, error, refresh } = useGallery();
@@ -187,7 +188,7 @@ export function GalleryCMS() {
               {formData.type === 'video' ? (
                 <VideoPlayer url={formData.imageUrl} autoPlay={false} controls={true} className="w-full h-48 rounded-image object-cover border" />
               ) : (
-                <img src={formData.imageUrl} alt="Preview" className="h-48 rounded-image object-cover border" />
+                <img src={getDirectMediaUrl(formData.imageUrl)} alt="Preview" className="h-48 rounded-image object-cover border" />
               )}
             </div>
           )}
@@ -221,7 +222,7 @@ export function GalleryCMS() {
                   </div>
                 </div>
               ) : (
-                <img src={item.imageUrl} alt={item.caption || item.category} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <img src={getDirectMediaUrl(item.imageUrl)} alt={item.caption || item.category} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               )}
               
               {!item.published && (

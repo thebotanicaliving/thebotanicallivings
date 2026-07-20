@@ -29,18 +29,23 @@ export function ProgressiveImage({
   const [isInView, setIsInView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const highResRef = useRef<HTMLImageElement>(null);
+  const prevSrcRef = useRef(resolvedSrc);
 
-  // Reset states if src changes
+  // Reset states only if src actually changes
   useEffect(() => {
-    setIsHighResLoaded(false);
+    const nextSrc = getDirectMediaUrl(src);
+    if (nextSrc !== prevSrcRef.current) {
+      prevSrcRef.current = nextSrc;
+      setIsHighResLoaded(false);
+    }
   }, [src]);
 
   // If high-res image is already complete in browser cache, fire loaded state immediately
   useEffect(() => {
-    if (highResRef.current && highResRef.current.complete) {
+    if (!isHighResLoaded && highResRef.current && highResRef.current.complete) {
       setIsHighResLoaded(true);
     }
-  }, [isInView, resolvedSrc]);
+  }, [isInView, resolvedSrc, isHighResLoaded]);
 
   // Helper to generate a low-res Unsplash placeholder if none is provided
   const getPlaceholder = (originalSrc: string): string => {

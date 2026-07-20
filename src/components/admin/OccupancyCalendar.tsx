@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/firebase/firebase';
 import { availabilityService } from '@/services/availability.service';
 import { BookingRequest, BlockedDate, Room } from '@/types';
 import { Button, Card, Paragraph } from '@/components/shared';
-import { Calendar, ShieldAlert, Plus, Trash2, CheckCircle, ShieldX, User, HelpCircle, ArrowRight, Layers, Lock, Shield } from 'lucide-react';
+import { Calendar, ShieldAlert, Trash2, ArrowRight } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
+import { useRooms } from '@/hooks/useRooms';
+import { useBookings } from '@/hooks/useBookings';
 
 export function OccupancyCalendar() {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [bookings, setBookings] = useState<BookingRequest[]>([]);
+  const { rooms, loading: roomsLoading } = useRooms();
+  const { bookings, loading: bookingsLoading } = useBookings();
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingBlocks, setLoadingBlocks] = useState(true);
   const { showToast } = useToast();
 
   // Block form state
@@ -36,43 +36,19 @@ export function OccupancyCalendar() {
 
   const days = getNext30Days();
 
-  const fetchData = async () => {
-    if (!db) return;
-    setLoading(true);
-    try {
-      // Fetch rooms
-      const rSnap = await getDocs(collection(db, 'rooms'));
-      const rList: Room[] = [];
-      rSnap.forEach(d => {
-        rList.push({ id: d.id, ...d.data() } as Room);
-      });
-      setRooms(rList);
-      if (rList.length > 0) setSelectedRoomId(rList[0].id);
-
-      // Fetch bookings (all active ones)
-      const bSnap = await getDocs(collection(db, 'bookingRequests'));
-      const bList: BookingRequest[] = [];
-      bSnap.forEach(d => {
-        bList.push({ id: d.id, ...d.data() } as BookingRequest);
-      });
-      setBookings(bList.filter(b => b.status !== 'cancelled' && b.status !== 'rejected'));
-
-      // Fetch blocked dates
-      const blSnap = await getDocs(collection(db, 'blockedDates'));
-      const blList: BlockedDate[] = [];
-      blSnap.forEach(d => {
-        blList.push({ id: d.id, ...d.data() } as BlockedDate);
-      });
-      setBlockedDates(blList);
-    } catch (err) {
-      console.error('Error fetching occupancy calendar details:', err);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (rooms.length > 0 && !selectedRoomId) {
+      setSelectedRoomId(rooms[0].id);
     }
-  };
+  }, [rooms, selectedRoomId]);
 
   useEffect(() => {
-    fetchData();
+    setLoadingBlocks(true);
+    const unsubscribe = availabilityService.subscribeBlockedDates((data) => {
+      setBlockedDates(data);
+      setLoadingBlocks(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const handleAddBlock = async (e: React.FormEvent) => {
@@ -106,8 +82,6 @@ export function OccupancyCalendar() {
       setStartDate('');
       setEndDate('');
       setNotes('');
-      // Refresh calendar
-      await fetchData();
     } catch (err) {
       console.error(err);
       showToast('Failed to create calendar date block.', 'error');
@@ -121,7 +95,6 @@ export function OccupancyCalendar() {
     try {
       await availabilityService.deleteBlockedDate(id);
       showToast('Date block removed successfully.', 'success');
-      await fetchData();
     } catch (err) {
       console.error(err);
       showToast('Could not delete block.', 'error');
@@ -140,7 +113,7 @@ export function OccupancyCalendar() {
 
     // Check if checked in, occupied, checked out, check in day, check out day
     const booking = bookings.find(b => {
-      return b.roomId === roomId && b.checkInDate <= formattedDate && b.checkOutDate >= formattedDate;
+      return b.status !== 'cancelled' && b.status !== 'rejected' && b.roomId === roomId && b.checkInDate <= formattedDate && b.checkOutDate >= formattedDate;
     });
 
     if (booking) {
@@ -159,7 +132,9 @@ export function OccupancyCalendar() {
     return { type: 'available', label: 'Available', detail: null };
   };
 
-  if (loading) {
+  const loading = roomsLoading || bookingsLoading || loadingBlocks;
+
+  if (loading && rooms.length === 0) {
     return (
       <Card className="p-8 text-center bg-white border border-stone/10 shadow-sm flex flex-col items-center justify-center min-h-[300px]">
         <div className="w-8 h-8 border-2 border-forest border-t-transparent rounded-full animate-spin mb-3" />

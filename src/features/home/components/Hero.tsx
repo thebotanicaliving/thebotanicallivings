@@ -1,79 +1,57 @@
-import { useEffect, useState } from 'react';
-import { Assets } from '@/constants/assets';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { VideoPlayer } from '@/components/shared/VideoPlayer';
 import { useHomepage } from '@/hooks/useHomepage';
-import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/shared/Button';
 import { Heading, Paragraph } from '@/components/shared/Typography';
 import { IconWrapper } from '@/components/shared/IconWrapper';
+import { Content } from '@/constants/content';
+import { Hotel } from '@/constants/hotel';
 
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
 export function Hero() {
-  const { config, loading } = useHomepage();
-  const { settings } = useSettings();
-  const [currentIdx, setCurrentIdx] = useState(0);
-
-  const images = config.heroImages && config.heroImages.length > 0 
-    ? config.heroImages 
-    : [
-        'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1920&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1920&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=1920&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1920&auto=format&fit=crop'
-      ];
-
-  useEffect(() => {
-    // Release the preloader instantly
-    window.dispatchEvent(new CustomEvent('hero-video-loaded'));
-  }, []);
-
-  useEffect(() => {
-    if (images.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentIdx((prev) => (prev + 1) % images.length);
-    }, 30000); // 30-second cycle
-    return () => clearInterval(interval);
-  }, [images]);
+  const { config } = useHomepage();
+  const navigate = useNavigate();
   
   const scrollToNext = () => {
-    const nextSection = document.getElementById('brand-story');
+    const nextSection = document.getElementById('why-botanical');
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const videoUrl = config.heroVideoUrl || 'https://www.pexels.com/download/video/27807339/';
 
   return (
     <section
       id="hero-section"
       className="relative w-full h-screen overflow-hidden bg-dark-forest"
     >
-      {/* Background Cinematic Images Carousel */}
-      <div className="absolute inset-0 z-0 bg-dark-forest">
-        <AnimatePresence mode="popLayout">
-          <motion.img
-            key={currentIdx}
-            src={images[currentIdx]}
-            alt="Botanical Living Premium Sanctuary"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.65 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: 'easeInOut' }}
-            loading={currentIdx === 0 ? "eager" : "lazy"}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </AnimatePresence>
-        {/* Organic dark overlay - custom multi-stop premium gradient for smooth dark-forest transition to warm-cream */}
+      {/* Background Cinematic Video */}
+      <div className="absolute inset-0 z-0">
+        <VideoPlayer 
+          url={videoUrl} 
+          className="absolute inset-0 w-full h-full object-cover opacity-60" 
+          autoPlay={true}
+          muted={true}
+          loop={true}
+          onLoadedData={() => {
+            window.dispatchEvent(new CustomEvent('hero-video-loaded'));
+          }}
+        />
+        {/* Organic dark overlay - subtle premium gradient */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(to bottom, rgba(23, 53, 39, 0.2) 0%, rgba(23, 53, 39, 0.4) 20%, rgba(23, 53, 39, 0.6) 40%, rgba(23, 53, 39, 0.8) 60%, rgba(247, 245, 239, 0.2) 80%, rgba(247, 245, 239, 0.6) 90%, #f7f5ef 100%)'
+            background: 'linear-gradient(to bottom, rgba(23, 53, 39, 0.4) 0%, rgba(23, 53, 39, 0.6) 40%, rgba(247, 245, 239, 0.1) 80%, #f7f5ef 100%)'
           }}
         />
       </div>
 
       {/* Content Area */}
       <div className="relative z-10 w-full max-w-[1300px] mx-auto px-5 md:px-8 xl:px-12 flex flex-col items-center justify-end h-full pt-32 pb-14 sm:pb-24 md:pb-40 lg:pb-44">
-        <div className="max-w-3xl space-y-4 sm:space-y-6 flex flex-col items-center text-center">
+        <div className="max-w-4xl space-y-4 sm:space-y-6 flex flex-col items-center text-center">
 
           {/* Heading */}
           <motion.div
@@ -83,12 +61,12 @@ export function Hero() {
           >
             <Heading
               level={1}
-              className="text-warm-cream font-light text-balance leading-tight text-center text-2xl sm:text-3xl md:text-5xl lg:text-6xl"
+              className="text-warm-cream font-medium text-balance leading-tight text-center text-3xl sm:text-4xl md:text-5xl lg:text-7xl tracking-tight"
             >
-              {config.heroTitle}
+              {config.heroTitle || Content.hero.title}
             </Heading>
           </motion.div>
-
+ 
           {/* Subtitle */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -99,42 +77,38 @@ export function Hero() {
               size="lg"
               className="text-stone/90 leading-relaxed font-sans font-light max-w-2xl text-center text-xs sm:text-sm md:text-lg lg:text-xl"
             >
-              {config.heroSubtitle}
+              {config.heroSubtitle || Content.hero.subtitle}
             </Paragraph>
           </motion.div>
-
+ 
           {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
-            className="flex flex-wrap gap-3 pt-3 justify-center"
+            className="flex flex-wrap gap-4 pt-4 justify-center"
           >
             <Button
               variant="secondary"
-              className="px-5 py-2.5 sm:px-8 sm:py-4 text-[10px] sm:text-xs font-semibold uppercase tracking-widest h-auto"
-              onClick={() => {
-                const target = document.getElementById('final-cta');
-                if (target) target.scrollIntoView({ behavior: 'smooth' });
-              }}
+              className="px-6 py-3 sm:px-8 sm:py-4 text-[10px] sm:text-xs font-semibold uppercase tracking-widest h-auto shadow-lg"
+              onClick={() => navigate('/booking')}
             >
-              {config.heroPrimaryBtnText}
+              {"Book Room Now"}
             </Button>
+            
             <Button
               variant="outline"
-              className="text-warm-cream border-warm-cream/30 hover:bg-warm-cream/10 px-5 py-2.5 sm:px-8 sm:py-4 text-[10px] sm:text-xs font-semibold uppercase tracking-widest h-auto"
-              onClick={() => {
-                const target = document.getElementById('rooms-preview');
-                if (target) target.scrollIntoView({ behavior: 'smooth' });
-              }}
+              className="text-warm-cream border-gold-accent hover:bg-gold-accent/20 px-6 py-3 sm:px-8 sm:py-4 text-[10px] sm:text-xs font-semibold uppercase tracking-widest h-auto shadow-lg"
+              onClick={() => window.location.href = `tel:${Hotel.contact.phone.replace(/\s/g, '')}`}
             >
-              {config.heroSecondaryBtnText}
+              <IconWrapper name="phone" size={14} className="mr-2" />
+              {"Call Us Now"}
             </Button>
           </motion.div>
         </div>
       </div>
 
-      {/* Subtle Floating Scroll Indicator - elegantly styled for high contrast over warm-cream fade */}
+      {/* Subtle Floating Scroll Indicator */}
       <motion.button
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 1, 0.5, 1], y: [0, 6, 0] }}

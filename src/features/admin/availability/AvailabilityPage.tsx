@@ -32,7 +32,7 @@ import { OccupancyCalendar } from '@/components/admin/OccupancyCalendar';
 
 export function AvailabilityPage() {
   const { rooms, loading: roomsLoading } = useRooms();
-  const { bookings, loading: bookingsLoading, refresh: refreshBookings } = useBookings();
+  const { bookings, loading: bookingsLoading } = useBookings();
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
   const [loadingBlocks, setLoadingBlocks] = useState(true);
   const [activeTab, setActiveTab] = useState<'month' | 'timeline'>('month');
@@ -59,25 +59,13 @@ export function AvailabilityPage() {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const fetchBlockedDates = async () => {
-    if (!db) return;
-    setLoadingBlocks(true);
-    try {
-      const snap = await getDocs(collection(db, 'blockedDates'));
-      const list: BlockedDate[] = [];
-      snap.forEach(d => {
-        list.push({ id: d.id, ...d.data() } as BlockedDate);
-      });
-      setBlockedDates(list);
-    } catch (err) {
-      console.error('Error fetching blocked dates:', err);
-    } finally {
-      setLoadingBlocks(false);
-    }
-  };
-
   useEffect(() => {
-    fetchBlockedDates();
+    setLoadingBlocks(true);
+    const unsubscribe = availabilityService.subscribeBlockedDates((data) => {
+      setBlockedDates(data);
+      setLoadingBlocks(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   // Set default room selection once loaded
@@ -190,7 +178,6 @@ export function AvailabilityPage() {
 
       showToast(`Successfully blocked ${selectedDateStr} for guest availability.`, 'success');
       setShowBlockModal(false);
-      await fetchBlockedDates();
     } catch (err) {
       console.error(err);
       showToast('Could not save calendar date block.', 'error');
@@ -205,7 +192,6 @@ export function AvailabilityPage() {
       await availabilityService.deleteBlockedDate(blockId);
       showToast('Inventory block successfully removed.', 'success');
       setSelectedBlock(null);
-      await fetchBlockedDates();
     } catch (err) {
       console.error(err);
       showToast('Could not lift block.', 'error');

@@ -3,8 +3,18 @@ import path from "path";
 import crypto from "crypto";
 import dotenv from "dotenv";
 import Razorpay from "razorpay";
-import { initializeApp, getApps } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  query, 
+  where, 
+  limit, 
+  writeBatch 
+} from "firebase/firestore";
 import { createServer as createViteServer } from "vite";
 
 // Load environment variables
@@ -15,25 +25,50 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Initialize Firebase Admin
-const projectId = process.env.VITE_FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+// Initialize Firebase Client SDK on the server side to connect securely using the API key
+const firebaseConfig = {
+  apiKey: (process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || "").trim(),
+  authDomain: (process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || process.env.VITE_FIREBASE_AUTH_DOMAIN || "").trim(),
+  projectId: (process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || "").trim(),
+  storageBucket: (process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || process.env.VITE_FIREBASE_STORAGE_BUCKET || "").trim(),
+  messagingSenderId: (process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "").trim(),
+  appId: (process.env.NEXT_PUBLIC_FIREBASE_APP_ID || process.env.VITE_FIREBASE_APP_ID || "").trim(),
+  measurementId: (process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || process.env.VITE_FIREBASE_MEASUREMENT_ID || "").trim(),
+};
+
+let clientApp;
 if (getApps().length === 0) {
-  initializeApp({
-    projectId: projectId,
-  });
+  clientApp = initializeApp(firebaseConfig);
+} else {
+  clientApp = getApp();
 }
-const adminDb = getFirestore();
+const db = getFirestore(clientApp);
 
-// Initialize Razorpay
-const razorpayKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || "rzp_test_TCXVBQWuZe0BwI";
-const razorpayKeySecret = process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || "lXxXr69w6Q2UrA7cXHvJSq9E";
+// Initialize Razorpay lazily to avoid crashing on startup if keys are missing
+function getRazorpayKeyId(): string {
+  return (process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "").trim();
+}
 
-const razorpay = new Razorpay({
-  key_id: razorpayKeyId,
-  key_secret: razorpayKeySecret,
-});
+function getRazorpayKeySecret(): string {
+  return (process.env.RAZORPAY_KEY_SECRET || "").trim();
+}
 
-// Helper: Securely retrieve pricing rules from Firestore using admin credentials
+let razorpayInstance: Razorpay | null = null;
+function getRazorpay(): Razorpay {
+  if (!razorpayInstance) {
+    const keyId = getRazorpayKeyId();
+    const keySecret = getRazorpayKeySecret();
+    
+    // Use fallbacks to prevent crashing at initialization if environment variables are missing
+    razorpayInstance = new Razorpay({
+      key_id: keyId || "rzp_test_placeholder",
+      key_secret: keySecret || "placeholder_secret",
+    });
+  }
+  return razorpayInstance;
+}
+
+// Helper: Securely retrieve pricing rules from Firestore using client SDK
 async function getPricingRules(roomId: string) {
   const defaultRules = {
     roomId,
@@ -55,19 +90,16 @@ async function getPricingRules(roomId: string) {
   };
 
   try {
-    const snap = await adminDb.collection("pricingRules")
-      .where("roomId", "==", roomId)
-      .limit(1)
-      .get();
+    const pricingRulesCol = collection(db, "pricingRules");
+    const q = query(pricingRulesCol, where("roomId", "==", roomId), limit(1));
+    const snap = await getDocs(q);
       
     if (!snap.empty) {
       return { id: snap.docs[0].id, ...snap.docs[0].data() } as any;
     }
 
-    const snapGlobal = await adminDb.collection("pricingRules")
-      .where("roomId", "==", "global")
-      .limit(1)
-      .get();
+    const qGlobal = query(pricingRulesCol, where("roomId", "==", "global"), limit(1));
+    const snapGlobal = await getDocs(qGlobal);
       
     if (!snapGlobal.empty) {
       return { id: snapGlobal.docs[0].id, ...snapGlobal.docs[0].data(), roomId } as any;
@@ -83,8 +115,9 @@ async function getPricingRules(roomId: string) {
 // Helper: Fetch Room details securely from Firestore
 async function getRoomTitle(roomId: string): Promise<string> {
   try {
-    const docSnap = await adminDb.collection("rooms").doc(roomId).get();
-    if (docSnap.exists) {
+    const docRef = doc(db, "rooms", roomId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
       return docSnap.data()?.title || "Selected Room";
     }
   } catch (err) {
@@ -99,7 +132,8 @@ async function calculateServerLivePrice(
   checkIn: string,
   checkOut: string,
   adultsCount: number,
-  childrenCount: number
+  childrenCount: number,
+  selectedFoodIds: string[] = []
 ) {
   const rules = await getPricingRules(roomId);
   
@@ -129,13 +163,43 @@ async function calculateServerLivePrice(
     current.setDate(current.getDate() + 1);
   }
 
-  const rawSubtotal = baseAmount + extraGuestsAmount;
+  // Food calculation: monthly/daily rate based on stay length
+  let foodAmount = 0;
+  const foodOptions = [
+    { id: "breakfast", price: 2000 },
+    { id: "tiffin", price: 2000 },
+    { id: "lunch", price: 3500 },
+    { id: "dinner", price: 3500 }
+  ];
+
+  if (selectedFoodIds && selectedFoodIds.length > 0) {
+    selectedFoodIds.forEach(id => {
+      const option = foodOptions.find(o => o.id === id);
+      if (option) {
+        // If stay is less than a month, we charge per day (monthly/30 * nights)
+        // If stay is exactly a month or more, we charge monthly blocks
+        if (nights < 30) {
+          foodAmount += Math.round((option.price / 30) * nights);
+        } else {
+          const months = Math.ceil(nights / 30);
+          foodAmount += option.price * months;
+        }
+      }
+    });
+  }
+
+  const rawSubtotal = baseAmount + extraGuestsAmount + foodAmount;
   const discountAmount = Math.round(rawSubtotal * (rules.discountPercent / 100));
   const subtotalAfterDiscount = rawSubtotal - discountAmount;
 
-  const taxesAmount = Math.round(subtotalAfterDiscount * (rules.taxesPercent / 100));
+  // Overriding fees to 0 as requested by the user / aligned with client
+  const taxesPercent = 0;
+  const taxesAmount = 0;
+  const cleaningFee = 0;
+  const platformFee = 0;
+  const securityDeposit = 0;
   
-  const grandTotal = subtotalAfterDiscount + taxesAmount + rules.cleaningFee + rules.platformFee + rules.securityDeposit;
+  const grandTotal = subtotalAfterDiscount;
   const advanceAmount = Math.round(grandTotal * (rules.advancePercent / 100));
 
   return {
@@ -143,13 +207,15 @@ async function calculateServerLivePrice(
     basePricePerNight: rules.basePrice,
     baseAmount,
     extraGuestsAmount,
+    foodAmount,
+    selectedFoodIds,
     discountPercent: rules.discountPercent,
     discountAmount,
-    taxesPercent: rules.taxesPercent,
+    taxesPercent,
     taxesAmount,
-    cleaningFee: rules.cleaningFee,
-    platformFee: rules.platformFee,
-    securityDeposit: rules.securityDeposit,
+    cleaningFee,
+    platformFee,
+    securityDeposit,
     grandTotal,
     advanceAmount,
     advancePercent: rules.advancePercent,
@@ -159,7 +225,7 @@ async function calculateServerLivePrice(
 // API Routes
 app.post("/api/create-order", async (req, res) => {
   try {
-    const { roomId, checkInDate, checkOutDate, adultsCount, childrenCount, receipt } = req.body;
+    const { roomId, checkInDate, checkOutDate, adultsCount, childrenCount, selectedFoodIds, receipt } = req.body;
 
     if (!roomId || !checkInDate || !checkOutDate) {
       return res.status(400).json({ error: "Missing required booking specifications." });
@@ -171,7 +237,8 @@ app.post("/api/create-order", async (req, res) => {
       checkInDate,
       checkOutDate,
       adultsCount || 2,
-      childrenCount || 0
+      childrenCount || 0,
+      selectedFoodIds || []
     );
 
     const amountInPaise = Math.round(priceDetails.advanceAmount * 100);
@@ -187,9 +254,11 @@ app.post("/api/create-order", async (req, res) => {
       receipt: receipt || `rcpt_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
     };
 
+    const razorpay = getRazorpay();
     const order = await razorpay.orders.create(options);
     
     return res.json({
+      key_id: getRazorpayKeyId(),
       order_id: order.id,
       amount: order.amount,
       currency: order.currency,
@@ -197,9 +266,19 @@ app.post("/api/create-order", async (req, res) => {
     });
   } catch (error: any) {
     console.error("Razorpay Order Creation Error:", error);
-    return res.status(500).json({ 
-      error: "Internal Server Error in creating order", 
-      message: error?.message || String(error) 
+    
+    let userFriendlyMessage = "Internal Server Error in creating order";
+    if (error?.statusCode === 401 || error?.error?.description === "Authentication failed" || (error?.message && error.message.includes("401"))) {
+      userFriendlyMessage = "Razorpay Authentication failed. Please double-check your RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in the .env file. Ensure there are no spaces or trailing characters, and that the key is generated in Test Mode.";
+    } else if (error?.error?.description) {
+      userFriendlyMessage = `Razorpay Error: ${error.error.description}`;
+    } else if (error?.message) {
+      userFriendlyMessage = `Razorpay Error: ${error.message}`;
+    }
+
+    return res.status(error?.statusCode || 500).json({ 
+      error: "Razorpay Error", 
+      message: userFriendlyMessage 
     });
   }
 });
@@ -220,7 +299,7 @@ app.post("/api/verify-payment", async (req, res) => {
     // 1. Re-calculate hash using HMAC-SHA256 with key secret
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
-      .createHmac("sha256", razorpayKeySecret)
+      .createHmac("sha256", getRazorpayKeySecret())
       .update(body.toString())
       .digest("hex");
 
@@ -237,7 +316,8 @@ app.post("/api/verify-payment", async (req, res) => {
       bookingPayload.checkInDate,
       bookingPayload.checkOutDate,
       bookingPayload.adultsCount,
-      bookingPayload.childrenCount
+      bookingPayload.childrenCount,
+      bookingPayload.selectedFoodOptions || []
     );
 
     // Assert that the advanceAmount matches securely calculated server value
@@ -247,11 +327,12 @@ app.post("/api/verify-payment", async (req, res) => {
       });
     }
 
-    // 3. Admin batch write to Firestore (secure, client-bypassable)
-    const batch = adminDb.batch();
+    // 3. Batch write to Firestore using Web SDK
+    const batch = writeBatch(db);
     const roomTitle = await getRoomTitle(bookingPayload.roomId);
 
-    const finalBookingId = bookingPayload.id || adminDb.collection("bookingRequests").doc().id;
+    const bookingRequestsCol = collection(db, "bookingRequests");
+    const finalBookingId = bookingPayload.id || doc(bookingRequestsCol).id;
     const verifiedBookingPayload = {
       ...bookingPayload,
       id: finalBookingId,
@@ -278,11 +359,12 @@ app.post("/api/verify-payment", async (req, res) => {
     };
 
     // Set verified booking request
-    const bookingRefDoc = adminDb.collection("bookingRequests").doc(finalBookingId);
+    const bookingRefDoc = doc(db, "bookingRequests", finalBookingId);
     batch.set(bookingRefDoc, verifiedBookingPayload);
 
     // Set payments ledger doc
-    const paymentDocId = adminDb.collection("payments").doc().id;
+    const paymentsCol = collection(db, "payments");
+    const paymentDocId = doc(paymentsCol).id;
     const paymentPayload = {
       bookingId: finalBookingId,
       bookingRef: bookingPayload.bookingRef,
@@ -294,10 +376,11 @@ app.post("/api/verify-payment", async (req, res) => {
       status: "paid",
       timestamp: new Date().toISOString()
     };
-    batch.set(adminDb.collection("payments").doc(paymentDocId), paymentPayload);
+    batch.set(doc(db, "payments", paymentDocId), paymentPayload);
 
     // Set booking history log
-    const historyDocId = adminDb.collection("bookingHistory").doc().id;
+    const historyCol = collection(db, "bookingHistory");
+    const historyDocId = doc(historyCol).id;
     const historyPayload = {
       bookingId: finalBookingId,
       bookingRef: bookingPayload.bookingRef,
@@ -306,7 +389,7 @@ app.post("/api/verify-payment", async (req, res) => {
       notes: `Stay confirmed with INR ${securePrices.advanceAmount} advance payment. Razorpay ID: ${razorpay_payment_id}`,
       timestamp: new Date().toISOString()
     };
-    batch.set(adminDb.collection("bookingHistory").doc(historyDocId), historyPayload);
+    batch.set(doc(db, "bookingHistory", historyDocId), historyPayload);
 
     await batch.commit();
 

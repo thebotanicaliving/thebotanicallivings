@@ -58,20 +58,28 @@ export function VideoPlayerComponent({
 
   // Convert Google Drive view URL to direct stream/download URL
   let fileId = '';
-  const driveMatch1 = finalUrl.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  const driveMatch2 = finalUrl.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-  const driveMatch3 = finalUrl.match(/drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/);
-  
-  if (driveMatch1) {
-    fileId = driveMatch1[1];
-  } else if (driveMatch2) {
-    fileId = driveMatch2[1];
-  } else if (driveMatch3) {
-    fileId = driveMatch3[1];
+  // Clean URL of all spaces, quotes, and newlines
+  const cleanUrlString = urlString.replace(/[\s"']/g, '');
+
+  const patterns = [
+    /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+    /drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/,
+    /lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/,
+    /docs\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/
+  ];
+
+  for (const pattern of patterns) {
+    const match = cleanUrlString.match(pattern);
+    if (match && match[1]) {
+      fileId = match[1];
+      break;
+    }
   }
 
   if (fileId) {
-    finalUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    // lh3.googleusercontent.com is faster for video streaming than drive.google.com/uc
+    finalUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
   }
 
   // Check if it's a vertical video (YouTube Shorts, containing vertical/portrait, or explicitly styled/requested)

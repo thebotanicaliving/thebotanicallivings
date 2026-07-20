@@ -7,22 +7,15 @@ export function useGallery() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchGallery = useCallback(async () => {
+  useEffect(() => {
     setLoading(true);
-    setError(null);
-    try {
-      const data = await galleryService.getGalleryItems();
+    const unsubscribe = galleryService.subscribeGallery((data) => {
       setItems(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch gallery items'));
-    } finally {
       setLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    fetchGallery();
-  }, [fetchGallery]);
-
-  return { gallery: items, loading, error, refresh: fetchGallery };
+  return { gallery: items, loading, error, refresh: () => {} };
 }

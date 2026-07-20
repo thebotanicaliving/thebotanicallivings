@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 
 export interface BusinessSettings {
@@ -22,6 +22,8 @@ export interface BusinessSettings {
   faviconUrl: string;
   heroVideoUrl: string;
   socialShareImage: string;
+  ogImage: string;
+  canonicalUrl: string;
 
   // Socials
   instagram: string;
@@ -34,8 +36,6 @@ export interface BusinessSettings {
   seoTitle: string;
   seoDescription: string;
   seoKeywords: string;
-  ogImage: string;
-  canonicalUrl: string;
 }
 
 export const defaultSettings: BusinessSettings = {
@@ -55,8 +55,10 @@ export const defaultSettings: BusinessSettings = {
   logoUrl: '',
   wordmarkUrl: '',
   faviconUrl: '/favicon.ico',
-  heroVideoUrl: 'https://drive.google.com/file/d/1zqPtZ2F1NFiPJ9xZ_ffvdq7O3y4noien/view?usp=sharing',
+  heroVideoUrl: 'https://www.pexels.com/download/video/27807339/',
   socialShareImage: '',
+  ogImage: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop',
+  canonicalUrl: 'https://botanicalliving.in',
 
   instagram: 'https://instagram.com/botanical.living',
   facebook: 'https://facebook.com/botanical.living',
@@ -67,11 +69,25 @@ export const defaultSettings: BusinessSettings = {
   seoTitle: 'Botanical Living - Premium Eco-Luxury Co-Living in Kondapur, Hyderabad',
   seoDescription: 'Fully serviced luxury rooms with daily cleaning, in-house laundry, delicious homely food, 24/7 security, high-speed Wi-Fi, and a rooftop study cafe.',
   seoKeywords: 'co-living Hyderabad, premium hostel Kondapur, serviced rooms Hitech city, luxury co-living Hyderabad',
-  ogImage: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop',
-  canonicalUrl: 'https://botanicalliving.in'
 };
 
 export const settingsService = {
+  subscribeSettings(callback: (settings: BusinessSettings) => void) {
+    if (!db) {
+      callback(defaultSettings);
+      return () => {};
+    }
+
+    const docRef = doc(db, 'settings', 'general');
+    return onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        callback({ ...defaultSettings, ...docSnap.data() } as BusinessSettings);
+      } else {
+        callback(defaultSettings);
+      }
+    });
+  },
+
   async getSettings(): Promise<BusinessSettings> {
     if (!db) {
       console.log('[SettingsService] Firebase not initialized. Using defaults.');

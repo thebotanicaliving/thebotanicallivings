@@ -7,22 +7,15 @@ export function useHotel() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchConfig = useCallback(async () => {
+  useEffect(() => {
     setLoading(true);
-    setError(null);
-    try {
-      const data = await hotelService.getHotelConfig();
+    const unsubscribe = hotelService.subscribeHotelConfig((data) => {
       setConfig(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch hotel config'));
-    } finally {
       setLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    fetchConfig();
-  }, [fetchConfig]);
-
-  return { config, loading, error, retry: fetchConfig };
+  return { config, loading, error };
 }

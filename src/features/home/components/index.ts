@@ -7,5 +7,5 @@ export * from './Lifestyle';
 export * from './Gallery';
 export * from './Testimonials';
 export * from './Location';
-export * from './Faq';
+export * from './FAQ';
 export * from './FinalCta';

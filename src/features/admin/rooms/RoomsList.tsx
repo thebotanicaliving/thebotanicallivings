@@ -8,7 +8,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { ConfirmDialog } from '@/components/admin/dialogs/ConfirmDialog';
 
 export function RoomsList() {
-  const { rooms, loading, error, refresh } = useRooms();
+  const { rooms, loading, error } = useRooms();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -18,7 +18,6 @@ export function RoomsList() {
     try {
       await roomService.deleteRoom(deleteId);
       showToast('Room deleted', 'success');
-      if (refresh) refresh();
     } catch (err) {
       showToast('Failed to delete room', 'error');
     } finally {

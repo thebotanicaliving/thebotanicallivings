@@ -6,7 +6,7 @@ import { Heading, Paragraph } from '@/components/shared/Typography';
 import { ScrollReveal, ScrollStagger } from '@/components/shared';
 
 export function RoomsPage() {
-  const { rooms, loading, error, refresh } = useRooms();
+  const { rooms, loading, error } = useRooms();
 
   return (
     <div className="pt-20 md:pt-24 min-h-screen bg-warm-cream">
@@ -42,12 +42,6 @@ export function RoomsPage() {
               <div className="w-12 h-12 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto text-xl font-bold">!</div>
               <p className="text-sm text-text-primary font-medium">Failed to retrieve room details</p>
               <p className="text-xs text-text-secondary">{error.message}</p>
-              <button
-                onClick={refresh}
-                className="bg-dark-forest text-warm-cream px-6 py-2 rounded-full text-xs font-semibold uppercase tracking-wider hover:bg-primary-forest transition-colors cursor-pointer"
-              >
-                Retry Loading
-              </button>
             </div>
           )}
 

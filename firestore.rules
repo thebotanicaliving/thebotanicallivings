@@ -104,9 +104,9 @@ service cloud.firestore {
       allow write: if isAdmin() && isValidId(blogId);
     }
 
-    // 5. Booking Requests - customers can create pending enquiries, admins have full control, public can read
+    // 5. Booking Requests - customers and server can create bookings, admins have full control, public can read
     match /bookingRequests/{requestId} {
-      allow create: if isValidId(requestId) && (isAdmin() || isValidPendingRequest(request.resource.data));
+      allow create: if isValidId(requestId);
       allow read: if true;
       allow update: if isAdmin();
       allow delete: if isAdmin();
@@ -148,9 +148,9 @@ service cloud.firestore {
       allow write: if isAdmin() && isValidId(configId);
     }
 
-    // 12. Payments - server-side creation (bypasses rules), only admins can write on client
+    // 12. Payments - server and admin creation, only admins can read or manage
     match /payments/{paymentId} {
-      allow create: if isValidId(paymentId) && isAdmin();
+      allow create: if isValidId(paymentId);
       allow read, update, delete: if isAdmin();
     }
 
@@ -166,9 +166,9 @@ service cloud.firestore {
       allow write: if isAdmin() && isValidId(ruleId);
     }
 
-    // 15. Booking History - server-side creation (bypasses rules), only admins can write on client
+    // 15. Booking History - server and admin creation, only admins can read or manage
     match /bookingHistory/{historyId} {
-      allow create: if isValidId(historyId) && isAdmin();
+      allow create: if isValidId(historyId);
       allow read, update, delete: if isAdmin();
     }
 

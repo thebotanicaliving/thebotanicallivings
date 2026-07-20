@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/utils/cn';
 import { MainNavigation } from '@/constants/navigation';
-import { useSettings } from '@/hooks/useSettings';
+import { Hotel } from '@/constants/hotel';
 import { Assets } from '@/constants/assets';
 import { Button } from '@/components/shared/Button';
 import { IconWrapper } from '@/components/shared/IconWrapper';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
-import { getDirectMediaUrl } from '@/utils/media';
 
 export function Navbar() {
-  const { settings } = useSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -62,47 +60,42 @@ export function Navbar() {
           {/* Brand Logo - left aligned */}
           <Link
             to="/"
-            className="flex items-center space-x-3 cursor-pointer hover:opacity-90 transition-opacity duration-200"
+            className="flex items-center space-x-2 md:space-x-3 cursor-pointer hover:opacity-90 transition-opacity duration-200"
           >
-            {/* Logo Icon */}
-            <img
-              src={getDirectMediaUrl(settings?.logoUrl) || Assets.logos.icon}
-              alt=""
-              referrerPolicy="no-referrer"
-              className={cn(
-                "h-8 md:h-9 w-auto object-contain transition-all duration-300",
-                settings?.logoUrl ? "" : (showSolidNavbar ? "brightness-0" : "brightness-0 invert")
-              )}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            {/* Wordmark */}
-            <img
-              src={getDirectMediaUrl(settings?.wordmarkUrl) || Assets.logos.wordmark}
-              alt={(settings?.hotelName || "Botanical Living")}
-              referrerPolicy="no-referrer"
-              className={cn(
-                "h-5 md:h-6 w-auto object-contain transition-all duration-300",
-                settings?.wordmarkUrl ? "" : (showSolidNavbar ? "brightness-0" : "brightness-0 invert")
-              )}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                const parent = e.currentTarget.parentElement;
-                if (parent) {
-                  const fb = parent.querySelector('.text-fallback');
-                  if (fb) fb.classList.remove('hidden');
-                }
-              }}
-            />
-            <span
-              className={cn(
-                'text-fallback font-heading text-xl md:text-2xl font-semibold tracking-wide hidden',
-                showSolidNavbar ? 'text-primary-forest' : 'text-warm-cream'
-              )}
-            >
-              {(settings?.hotelName || "Botanical Living")}
-            </span>
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <img 
+                src={Assets.logos.icon} 
+                alt="Botanical Living Icon" 
+                className={cn(
+                  "h-7 md:h-8 w-auto transition-all duration-300",
+                  showSolidNavbar ? "brightness-0" : "brightness-0 invert"
+                )}
+              />
+              <img 
+                src={Assets.logos.wordmark} 
+                alt="Botanical Living Wordmark Logo" 
+                className={cn(
+                  "h-5 md:h-6 w-auto transition-all duration-300",
+                  showSolidNavbar ? "brightness-0" : "brightness-0 invert"
+                )}
+              />
+            </div>
+            <div className="flex flex-col ml-2 hidden">
+              <span
+                className={cn(
+                  'font-heading text-base md:text-lg font-bold tracking-tight uppercase leading-none',
+                  showSolidNavbar ? 'text-primary-forest' : 'text-warm-cream'
+                )}
+              >
+                {Hotel.shortName}
+              </span>
+              <span className={cn(
+                "text-[7px] md:text-[8px] tracking-[0.25em] uppercase font-bold",
+                showSolidNavbar ? "text-gold-accent" : "text-gold-accent"
+              )}>
+                {Hotel.location.city}
+              </span>
+            </div>
           </Link>
 
           {/* Navigation - center aligned desktop */}
@@ -116,9 +109,9 @@ export function Navbar() {
                   key={item.label}
                   to={item.path}
                   className={cn(
-                    'relative font-button text-sm tracking-widest font-medium py-1 transition-colors duration-250 cursor-pointer group',
+                    'relative font-button text-[10px] tracking-widest font-semibold py-1 transition-colors duration-250 cursor-pointer group uppercase',
                     isActive
-                      ? (showSolidNavbar ? 'text-primary-forest font-semibold' : 'text-warm-cream font-semibold')
+                      ? (showSolidNavbar ? 'text-primary-forest' : 'text-warm-cream')
                       : (showSolidNavbar ? 'text-text-secondary hover:text-primary-forest' : 'text-stone hover:text-warm-cream')
                   )}
                 >
@@ -139,20 +132,19 @@ export function Navbar() {
               variant={showSolidNavbar ? 'primary' : 'outline'}
               size="sm"
               className={cn(
-                'font-semibold normal-case gap-2 tracking-widest text-xs',
+                'font-bold uppercase gap-2 tracking-widest text-[10px] px-6',
                 !showSolidNavbar && 'text-warm-cream border-warm-cream/40 hover:bg-warm-cream/10'
               )}
               onClick={() => {
-                const cleanedNumber = (settings?.whatsapp || "").replace(/[^0-9]/g, '');
+                const cleanedNumber = Hotel.contact.whatsapp.replace(/[^0-9]/g, '');
                 window.open(`https://wa.me/${cleanedNumber}`, '_blank', 'noopener,noreferrer');
               }}
             >
-
-              Chat With Us
+              Concierge
               <IconWrapper 
-              name="whatsapp" 
-              className="text-white fill-current ml-2" 
-              size={18} 
+                name="whatsapp" 
+                className="ml-1" 
+                size={14} 
               />
             </Button>
           </div>
@@ -172,11 +164,10 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Drawer Navigation (Rendered OUTSIDE <header> to avoid backdrop-filter stacking context bugs) */}
+      {/* Mobile Drawer Navigation */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-[99999] lg:hidden">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -185,7 +176,6 @@ export function Navbar() {
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999]"
             />
 
-            {/* Side Drawer menu */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -209,10 +199,10 @@ export function Navbar() {
                         to={item.path}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
-                          "font-button text-base tracking-widest py-2 transition-colors duration-250 border-b border-border/20 block w-full",
+                          "font-button text-xs tracking-widest py-3 transition-colors duration-250 border-b border-border/10 block w-full uppercase font-bold",
                           isActive 
-                            ? "text-primary-forest font-bold" 
-                            : "text-text-primary font-medium hover:text-primary-forest"
+                            ? "text-primary-forest" 
+                            : "text-text-primary hover:text-primary-forest"
                         )}
                       >
                         {item.label}
@@ -225,17 +215,18 @@ export function Navbar() {
               <div className="flex flex-col space-y-4">
                 <Button
                   variant="primary"
-                  className="w-full text-center tracking-widest uppercase text-xs py-3"
+                  className="w-full text-center tracking-widest uppercase text-[10px] font-bold py-4"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    const cleanedNumber = Hotel.contact.whatsapp.replace(/[^0-9]/g, '');
+                    window.open(`https://wa.me/${cleanedNumber}`, '_blank', 'noopener,noreferrer');
                   }}
                 >
                   Book Your Stay
                 </Button>
                 
-                <div className="text-center text-xs text-text-secondary font-medium">
-                  {(settings?.phone || "")}
+                <div className="text-center text-[10px] text-text-secondary font-bold tracking-widest uppercase">
+                  {Hotel.contact.phone}
                 </div>
               </div>
             </motion.div>
@@ -245,4 +236,5 @@ export function Navbar() {
     </>
   );
 }
+
 export default Navbar;

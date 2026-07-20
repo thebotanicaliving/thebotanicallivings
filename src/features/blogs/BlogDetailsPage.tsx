@@ -17,16 +17,28 @@ export function BlogDetailsPage() {
   const { blogs } = useBlogs();
   const [copied, setCopied] = useState(false);
 
-  // Extract headings (h2 '## ') for Table of Contents
+  // Extract headings for Table of Contents (both sections and markdown fallback)
   const [toc, setToc] = useState<string[]>([]);
 
   useEffect(() => {
     if (blog) {
-      const h2s = blog.content
-        .split('\n')
-        .filter((line) => line.trim().startsWith('## '))
-        .map((line) => line.replace('## ', '').trim());
-      setToc(h2s);
+      if (blog.sections && blog.sections.length > 0) {
+        const h2s: string[] = [];
+        blog.sections.forEach(sec => {
+          if (sec.type === 'text' && sec.title) {
+            h2s.push(sec.title);
+          } else if (sec.type === 'text-image' && sec.title) {
+            h2s.push(sec.title);
+          }
+        });
+        setToc(h2s);
+      } else {
+        const h2s = blog.content
+          .split('\n')
+          .filter((line) => line.trim().startsWith('## '))
+          .map((line) => line.replace('## ', '').trim());
+        setToc(h2s);
+      }
     }
   }, [blog]);
 
@@ -182,7 +194,141 @@ export function BlogDetailsPage() {
                   }
                 `}} />
                 
-                <Markdown>{blog.content}</Markdown>
+                {blog.sections && blog.sections.length > 0 ? (
+                  <div className="space-y-8">
+                    {blog.sections.map((section, idx) => {
+                      if (section.type === 'text') {
+                        return (
+                          <div key={section.id || idx} className="space-y-3 animate-fadeIn">
+                            {section.title && (
+                              <h2 className="font-heading text-xl md:text-2xl font-light text-dark-forest border-b border-stone-100 pb-2 mt-6">
+                                {section.title}
+                              </h2>
+                            )}
+                            <div className="text-text-primary leading-relaxed font-light text-sm md:text-base space-y-3 font-sans">
+                              <Markdown>{section.content}</Markdown>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (section.type === 'image') {
+                        if (section.imageLayout === 'grid-two') {
+                          return (
+                            <div key={section.id || idx} className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8 animate-fadeIn">
+                              <div className="space-y-2 group">
+                                <div className="overflow-hidden rounded-2xl border border-stone-100 shadow-sm">
+                                  <img 
+                                    src={section.imageUrl} 
+                                    alt={section.imageCaption || ''} 
+                                    className="w-full object-cover max-h-[350px] hover:scale-[1.02] transition-transform duration-500" 
+                                    referrerPolicy="no-referrer"
+                                  />
+                                </div>
+                                {section.imageCaption && (
+                                  <p className="text-[11px] italic text-text-secondary text-center font-light leading-relaxed">
+                                    {section.imageCaption}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="space-y-2 group">
+                                <div className="overflow-hidden rounded-2xl border border-stone-100 shadow-sm">
+                                  <img 
+                                    src={section.imageUrlSecond} 
+                                    alt={section.imageCaptionSecond || ''} 
+                                    className="w-full object-cover max-h-[350px] hover:scale-[1.02] transition-transform duration-500" 
+                                    referrerPolicy="no-referrer"
+                                  />
+                                </div>
+                                {section.imageCaptionSecond && (
+                                  <p className="text-[11px] italic text-text-secondary text-center font-light leading-relaxed">
+                                    {section.imageCaptionSecond}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div key={section.id || idx} className="space-y-2.5 my-8 group animate-fadeIn">
+                            <div className="overflow-hidden rounded-[20px] border border-stone-200/45 shadow-md">
+                              <img 
+                                src={section.imageUrl} 
+                                alt={section.imageCaption || ''} 
+                                className="w-full object-cover max-h-[500px] hover:scale-[1.01] transition-transform duration-700" 
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                            {section.imageCaption && (
+                              <p className="text-xs italic text-text-secondary text-center font-light leading-relaxed max-w-xl mx-auto">
+                                {section.imageCaption}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      if (section.type === 'text-image') {
+                        const isLeft = section.imageLayout === 'left';
+                        return (
+                          <div 
+                            key={section.id || idx} 
+                            className={`flex flex-col ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 md:gap-10 my-10 items-center animate-fadeIn`}
+                          >
+                            <div className="w-full md:w-1/2 space-y-2.5 group">
+                              <div className="overflow-hidden rounded-[20px] border border-stone-100 shadow-md">
+                                <img 
+                                  src={section.imageUrl} 
+                                  alt={section.imageCaption || ''} 
+                                  className="w-full object-cover max-h-[400px] hover:scale-[1.02] transition-transform duration-500" 
+                                  referrerPolicy="no-referrer"
+                                />
+                              </div>
+                              {section.imageCaption && (
+                                <p className="text-[11px] italic text-text-secondary text-center font-light leading-relaxed">
+                                  {section.imageCaption}
+                                </p>
+                              )}
+                            </div>
+                            <div className="w-full md:w-1/2 space-y-4">
+                              {section.title && (
+                                <h3 className="font-heading text-xl font-normal text-dark-forest tracking-tight">
+                                  {section.title}
+                                </h3>
+                              )}
+                              <div className="text-text-primary leading-relaxed font-light text-sm md:text-base space-y-3 font-sans">
+                                <Markdown>{section.content}</Markdown>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      if (section.type === 'quote') {
+                        return (
+                          <div 
+                            key={section.id || idx} 
+                            className="my-10 bg-warm-cream/35 border-l-4 border-gold-accent p-6 md:p-8 rounded-r-2xl shadow-subtle space-y-3 animate-fadeIn"
+                          >
+                            <p className="font-heading text-base md:text-lg italic text-dark-forest leading-relaxed font-light">
+                              "{section.content}"
+                            </p>
+                            {section.title && (
+                              <p className="text-xs font-semibold text-gold-accent uppercase tracking-wider text-right">
+                                — {section.title}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      return null;
+                    })}
+                  </div>
+                ) : (
+                  <Markdown>{blog.content}</Markdown>
+                )}
               </div>
 
               {/* Tags & Action row */}

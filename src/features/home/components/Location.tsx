@@ -1,13 +1,12 @@
-import { useHomepage } from '@/hooks/useHomepage';
 import { Hotel } from '@/constants/hotel';
-import { Section, Container, Heading, Paragraph, IconWrapper, Button } from '@/components/shared';
+import { Section, Container, Heading, Paragraph, IconWrapper, Button, ScrollReveal } from '@/components/shared';
 
 export function Location() {
-  const { config, loading } = useHomepage();
-  if (loading) return null;
   const launchDirections = () => {
     window.open(Hotel.location.googleMaps, '_blank');
   };
+
+  const nearbyPlaces = Hotel.location.nearbyPlaces || [];
 
   return (
     <Section
@@ -15,117 +14,100 @@ export function Location() {
       variant="cream"
       spacing="same"
     >
-      <Container className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-        {/* Left Side: Copy and POIs */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="space-y-4">
+      <Container className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+        {/* Left Side: Copy and Nearby Places Grid */}
+        <div className="lg:col-span-6 space-y-8">
+          <ScrollReveal variant="slideUp" className="space-y-4">
             <span className="font-button text-xs font-semibold uppercase tracking-widest text-gold-accent block">
-              {"Location"}
+              {"Strategic Location"}
             </span>
             <Heading level={2} className="text-dark-forest">
-              {config.locationTitle}
+              {"Stay at the Heart of Hyderabad's Tech Hub"}
             </Heading>
             <Paragraph size="md">
-              {config.locationSubtitle}
+              {"Strategically located near Botanical Garden, Kondapur, we provide seamless connectivity to major business districts and lifestyle destinations."}
             </Paragraph>
-          </div>
+          </ScrollReveal>
 
           {/* Real Address Card */}
-          <div className="flex items-start space-x-3 p-4 bg-white/40 rounded-card border border-border/40">
-            <span className="text-primary-forest mt-0.5 flex-shrink-0">
-              <IconWrapper name="address" size={20} />
+          <ScrollReveal variant="slideUp" delay={0.1} className="flex items-start space-x-4 p-5 bg-white rounded-card border border-border/40 shadow-sm">
+            <span className="text-primary-forest mt-0.5 flex-shrink-0 bg-primary-forest/5 p-2.5 rounded-xl">
+              <IconWrapper name="address" size={24} />
             </span>
             <div>
-              <h4 className="font-sans text-sm font-semibold text-dark-forest">The Residence Address</h4>
-              <p className="font-sans text-sm text-text-secondary">{config.locationAddress}</p>
+              <h4 className="font-heading text-lg font-semibold text-dark-forest">The Residence Address</h4>
+              <p className="font-sans text-sm text-text-secondary leading-relaxed mt-1">{Hotel.location.fullAddress}</p>
             </div>
-          </div>
+          </ScrollReveal>
 
-          {/* Mobile-Only Map: Prominently displayed right after the Address on smaller screens */}
-          <div className="block lg:hidden h-[260px] xs:h-[300px] w-full relative rounded-image overflow-hidden shadow-subtle border border-border/50 bg-[#E5E0D5] mt-4">
-            <iframe
-              src="https://maps.google.com/maps?q=Botanical%20living,%20Botanical%20Garden%20Road,%20Sri%20Ram%20Nagar,%20Kondapur,%20Hyderabad,%20Telangana%20500084&t=&z=17&ie=UTF8&iwloc=&output=embed"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Botanical Living exact Google Maps Location Mobile"
-              className="w-full h-full"
-            />
-          </div>
-
-          {/* Points of Interest list */}
-          <div className="space-y-4 pt-4">
-            <h4 className="font-button text-[10px] font-bold tracking-widest text-gold-accent uppercase">
-              Nearby Conveniences
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {[
-    { name: "Hitech City", distance: "2.5 km", time: "10 mins" },
-    { name: "Sarat City Capital Mall", distance: "1.2 km", time: "5 mins" },
-    { name: "Botanical Garden", distance: "0.5 km", time: "2 mins" },
-    { name: "AIG Hospitals", distance: "3.0 km", time: "12 mins" },
-  ].map((poi, i) => {
-                // Dynamically assign luxury icons to match content
-                let iconName: "map" | "zap" | "utensils" | "parking" | "star" = "star";
-                const lowerName = poi.name.toLowerCase();
-                if (lowerName.includes('garden')) iconName = "map";
-                else if (lowerName.includes('tech') || lowerName.includes('hub')) iconName = "zap";
-                else if (lowerName.includes('dining') || lowerName.includes('shop')) iconName = "utensils";
-                else if (lowerName.includes('transport') || lowerName.includes('public')) iconName = "parking";
-
-                return (
-                  <div 
-                    key={i} 
-                    className="p-3.5 rounded-button bg-white border border-[#E5E0D5] hover:border-gold-accent/40 hover:shadow-subtle transition-all duration-300 flex items-center space-x-3 text-left"
-                  >
-                    <span className="text-gold-accent flex-shrink-0 bg-stone/20 p-2 rounded-full flex items-center justify-center">
-                      <IconWrapper name={iconName} size={14} />
-                    </span>
-                    <div className="flex-grow min-w-0">
-                      <span className="font-sans text-sm font-semibold text-dark-forest tracking-tight block truncate sm:normal-case">
+          {/* Nearby Places Grid */}
+          <ScrollReveal variant="slideUp" delay={0.2} className="space-y-6">
+            <div className="flex items-center justify-between border-b border-border/40 pb-3">
+              <h4 className="font-button text-[11px] font-bold tracking-[0.2em] text-gold-accent uppercase">
+                Nearby Prime Locations
+              </h4>
+              <span className="text-[10px] text-text-secondary/50 font-bold uppercase tracking-widest font-sans">Strategic Hubs</span>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {nearbyPlaces.map((poi, i) => (
+                <div 
+                  key={i} 
+                  className="flex items-center justify-between p-4 rounded-2xl bg-white border border-border/20 hover:border-gold-accent/40 hover:shadow-subtle transition-all duration-500 group cursor-default"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-stone/30 flex items-center justify-center text-dark-forest group-hover:bg-gold-accent group-hover:text-white transition-all duration-500">
+                      <IconWrapper name="MapPin" size={16} />
+                    </div>
+                    <div>
+                      <span className="font-sans text-sm font-semibold text-dark-forest tracking-tight block">
                         {poi.name}
                       </span>
-                      <span className="font-sans text-[10px] text-text-secondary font-medium tracking-wide block uppercase mt-0.5">
-                        {poi.distance}
+                      <span className="text-[10px] text-text-secondary/60 font-medium uppercase tracking-wider block mt-0.5">
+                        {`Destination • Kondapur`}
                       </span>
                     </div>
                   </div>
-                );
-              })}
+                  <div className="text-right">
+                    <span className="font-mono text-[11px] font-bold text-gold-accent block">
+                      {poi.distance}
+                    </span>
+                    <span className="text-[8px] text-text-secondary/40 font-bold uppercase tracking-tighter block">Distance</span>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          </ScrollReveal>
 
-          <div className="pt-2">
+          <ScrollReveal variant="slideUp" delay={0.3} className="pt-4">
             <Button
               variant="outline"
               iconRight={<IconWrapper name="arrowRight" size={16} />}
-              className="uppercase tracking-widest text-xs font-semibold"
+              className="px-8 py-4 uppercase tracking-widest text-xs font-semibold"
               onClick={launchDirections}
             >
-              Get Directions
+              Get Directions on Google Maps
             </Button>
-          </div>
+          </ScrollReveal>
         </div>
 
-        {/* Right Side (Desktop Only): Beautiful, interactive exact Google Maps iframe */}
-        <div className="hidden lg:block lg:col-span-7 h-[400px] md:h-[450px] relative rounded-image overflow-hidden shadow-subtle border border-border/50 bg-[#E5E0D5]">
+        {/* Right Side: Beautiful, interactive exact Google Maps iframe */}
+        <ScrollReveal variant="scaleUp" delay={0.2} className="lg:col-span-6 h-[400px] md:h-[600px] relative rounded-card overflow-hidden shadow-2xl border border-border/50 bg-[#E5E0D5] sticky top-32">
           <iframe
-            src="https://maps.google.com/maps?q=Botanical%20living,%20Botanical%20Garden%20Road,%20Sri%20Ram%20Nagar,%20Kondapur,%20Hyderabad,%20Telangana%20500084&t=&z=17&ie=UTF8&iwloc=&output=embed"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.0567059144405!2d78.34499379678954!3d17.456999799999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93349847e08b%3A0xede0da138d080875!2sBotanical%20living!5e0!3m2!1sen!2sus!4v1784562444379!5m2!1sen!2sus"
             width="100%"
             height="100%"
             style={{ border: 0 }}
             allowFullScreen
             loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Botanical Living exact Google Maps Location Desktop"
-            className="w-full h-full"
+            referrerPolicy="strict-origin-when-cross-origin"
+            title="Botanical Living exact Google Maps Location"
+            className="w-full h-full grayscale-0 transition-all duration-700"
           />
-        </div>
+        </ScrollReveal>
       </Container>
     </Section>
   );
 }
+
 export default Location;

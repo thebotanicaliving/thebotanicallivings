@@ -28,8 +28,11 @@ export function Accordion({ items, className }: AccordionProps) {
         return (
           <div
             key={item.id}
-            className="border-b border-border/60 pb-4 transition-all duration-300"
+            className="relative group transition-all duration-300"
           >
+            {/* Classy Tapered Divider */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[80%] h-[1px] bg-gradient-to-r from-transparent via-border/40 to-transparent group-first:hidden" />
+            
             <button
               onClick={() => toggle(item.id)}
               className="flex w-full items-center justify-between py-3 text-left font-button font-medium text-text-primary hover:text-primary-forest focus:outline-none transition-colors duration-250 cursor-pointer"

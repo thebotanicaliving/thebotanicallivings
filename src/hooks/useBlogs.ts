@@ -4,28 +4,21 @@ import { blogService } from '@/services/blog.service';
 
 export function useBlogs(includeUnpublished: boolean = false) {
   const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [featuredBlog, setFeaturedBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchBlogsData = useCallback(async () => {
+  useEffect(() => {
     setLoading(true);
-    setError(null);
-    try {
-      const allBlogs = await blogService.getBlogs(includeUnpublished);
-      setBlogs(allBlogs);
-      const featured = await blogService.getFeaturedBlog();
-      setFeaturedBlog(featured);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch blogs'));
-    } finally {
+    const unsubscribe = blogService.subscribeBlogs((data) => {
+      const filtered = includeUnpublished ? data : data.filter((b) => b.published === true);
+      setBlogs(filtered);
       setLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, [includeUnpublished]);
 
-  useEffect(() => {
-    fetchBlogsData();
-  }, [fetchBlogsData]);
+  const featuredBlog = blogs.find(b => b.featured) || blogs[0] || null;
 
-  return { blogs, featuredBlog, loading, error, refresh: fetchBlogsData };
+  return { blogs, featuredBlog, loading, error, refresh: () => {} };
 }

@@ -1,6 +1,6 @@
 import { useHomepage } from '@/hooks/useHomepage';
 import { Assets } from '@/constants/assets';
-import { Section, Container, Heading, Paragraph, Button, IconWrapper, ScrollReveal } from '@/components/shared';
+import { Section, Container, Image, Heading, Paragraph, Button, IconWrapper, ScrollReveal } from '@/components/shared';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -15,19 +15,19 @@ export function Dining() {
     {
       id: 1,
       src: (config?.diningImageUrl || "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop"),
-      alt: "Fresh organic salad",
+      alt: "Dining Hall Botanical Living - Gourmet Preparation",
       label: "Gourmet Preparation"
     },
     {
       id: 2,
       src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=600&auto=format&fit=crop",
-      alt: "Premium dining experience",
+      alt: "Luxury Dining at Botanical Living - Chef Curated",
       label: "Chef Curated"
     },
     {
       id: 3,
       src: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=600&auto=format&fit=crop",
-      alt: "Communal dining room",
+      alt: "Communal Dining Hall Botanical Living",
       label: "Communal Feasts"
     }
   ]);
@@ -103,11 +103,11 @@ export function Dining() {
                 transition={{ duration: 0.4, ease: 'easeInOut' }}
                 className="absolute inset-0 w-full h-full"
               >
-                <img
+                <Image
                   src={(config?.diningImageUrl || images[0].src)}
                   alt={images[0].alt}
-                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover rounded-image"
+                  containerClassName="w-full h-full"
                 />
                 {/* Elegant overlay badge */}
                 <div className="absolute bottom-4 left-4 bg-dark-forest/80 backdrop-blur-md px-3 py-1.5 rounded-button text-warm-cream">
@@ -138,11 +138,11 @@ export function Dining() {
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
                   className="absolute inset-0 w-full h-full"
                 >
-                  <img
+                  <Image
                     src={images[1].src}
                     alt={images[1].alt}
-                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover rounded-image brightness-95 group-hover:brightness-100 transition-all duration-300"
+                    containerClassName="w-full h-full"
                   />
                   {/* Subtle swap hint overlay */}
                   <div className="absolute inset-0 bg-dark-forest/10 group-hover:bg-dark-forest/0 transition-colors duration-300" />
@@ -170,11 +170,11 @@ export function Dining() {
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
                   className="absolute inset-0 w-full h-full"
                 >
-                  <img
+                  <Image
                     src={images[2].src}
                     alt={images[2].alt}
-                    referrerPolicy="no-referrer"
                     className="w-full h-full object-cover rounded-image brightness-95 group-hover:brightness-100 transition-all duration-300"
+                    containerClassName="w-full h-full"
                   />
                   {/* Subtle swap hint overlay */}
                   <div className="absolute inset-0 bg-dark-forest/10 group-hover:bg-dark-forest/0 transition-colors duration-300" />

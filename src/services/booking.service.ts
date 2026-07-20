@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, setDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, setDoc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import { BookingRequest } from '@/types';
 
@@ -49,6 +49,43 @@ export const bookingService = {
     }
   },
 
+  subscribeBookings(callback: (bookings: BookingRequest[]) => void): () => void {
+    if (!db) {
+      callback(JSON.parse(localStorage.getItem('botanical_booking_requests') || '[]'));
+      return () => {};
+    }
+
+    const q = query(collection(db, 'bookingRequests'), orderBy('createdAt', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+      const list: BookingRequest[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() } as BookingRequest);
+      });
+      callback(list);
+    }, (error) => {
+      console.error('[BookingService] Error subscribing to bookings:', error);
+    });
+  },
+
+  subscribeBooking(id: string, callback: (booking: BookingRequest | null) => void): () => void {
+    if (!db) {
+      const localRequests = JSON.parse(localStorage.getItem('botanical_booking_requests') || '[]');
+      const found = localRequests.find((b: any) => b.id === id);
+      callback(found || null);
+      return () => {};
+    }
+
+    return onSnapshot(doc(db, 'bookingRequests', id), (docSnap) => {
+      if (docSnap.exists()) {
+        callback({ id: docSnap.id, ...docSnap.data() } as BookingRequest);
+      } else {
+        callback(null);
+      }
+    }, (error) => {
+      console.error(`[BookingService] Error subscribing to booking ${id}:`, error);
+    });
+  },
+
   async updateBookingStatus(
     id: string, 
     status: BookingRequest['status']
@@ -63,7 +100,6 @@ export const bookingService = {
 
     try {
       // Fetch some details to write history
-      const { getDoc } = await import('firebase/firestore');
       const bSnap = await getDoc(doc(db, 'bookingRequests', id));
       if (bSnap.exists()) {
         const b = bSnap.data() as BookingRequest;

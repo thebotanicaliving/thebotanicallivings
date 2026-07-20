@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { bookingService } from '@/services/booking.service';
 import { BookingRequest } from '@/types';
 
@@ -7,24 +7,17 @@ export function useBookings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchBookings = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await bookingService.getBookingRequests();
+  useEffect(() => {
+    setLoading(true);
+    const unsubscribe = bookingService.subscribeBookings((data) => {
       setBookings(data);
-      setError(null);
-    } catch (err: any) {
-      setError(err);
-    } finally {
       setLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
-
-  return { bookings, loading, error, refresh: fetchBookings };
+  return { bookings, loading, error };
 }
 
 export function useBooking(id?: string) {
@@ -32,24 +25,20 @@ export function useBooking(id?: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchBooking = useCallback(async () => {
-    if (!id) return;
-    try {
-      setLoading(true);
-      const data = await bookingService.getBookingRequests(); // Quick workaround, usually you'd have getBooking(id)
-      const found = data.find(b => b.id === id);
-      setBooking(found || null);
-      setError(null);
-    } catch (err: any) {
-      setError(err);
-    } finally {
+  useEffect(() => {
+    if (!id) {
       setLoading(false);
+      return;
     }
+
+    setLoading(true);
+    const unsubscribe = bookingService.subscribeBooking(id, (data) => {
+      setBooking(data);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, [id]);
 
-  useEffect(() => {
-    fetchBooking();
-  }, [fetchBooking]);
-
-  return { booking, loading, error, refresh: fetchBooking };
+  return { booking, loading, error };
 }

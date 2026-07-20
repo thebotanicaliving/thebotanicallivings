@@ -1,19 +1,22 @@
 import { useEffect, useState, useRef, Suspense, lazy } from 'react';
 import { Routes as RouterRoutes, Route, useLocation, Navigate } from 'react-router-dom';
-import { Navbar, Footer, PageWrapper } from '@/components/layout';
+import { Navbar, Footer, PageWrapper, StickyConversionBar } from '@/components/layout';
 import { WhatsAppWidget } from '@/components/shared';
+import { SchemaMarkup } from '@/components/seo/SchemaMarkup';
 import { Hero } from '@/features/home/components/Hero';
 
 // Lazy load below-the-fold components to improve initial page load and RAM usage
 const Story = lazy(() => import('@/features/home/components/Story'));
+const WhyBotanical = lazy(() => import('@/features/home/components/WhyBotanical'));
 const RoomsPreview = lazy(() => import('@/features/home/components/RoomsPreview'));
 const AmenitiesPreview = lazy(() => import('@/features/home/components/AmenitiesPreview'));
+const BotanicalCafe = lazy(() => import('@/features/home/components/BotanicalCafe'));
 const Dining = lazy(() => import('@/features/home/components/Dining'));
 const Lifestyle = lazy(() => import('@/features/home/components/Lifestyle'));
 const Gallery = lazy(() => import('@/features/home/components/Gallery'));
 const Testimonials = lazy(() => import('@/features/home/components/Testimonials'));
 const Location = lazy(() => import('@/features/home/components/Location'));
-const Faq = lazy(() => import('@/features/home/components/Faq'));
+const Faq = lazy(() => import('@/features/home/components/FAQ'));
 const FinalCta = lazy(() => import('@/features/home/components/FinalCta'));
 
 // Import newly implemented Phase 2 dynamic pages
@@ -75,13 +78,19 @@ function HomeView() {
         {/* philosophy of brand */}
         <Story />
 
-        {/* luxury suites showcase */}
+        {/* 6-card grid explaining value proposition */}
+        <WhyBotanical />
+
+        {/* premium sharing options cards with pricing */}
         <RoomsPreview />
 
-        {/* bespoke hospitality amenities */}
+        {/* bespoke hospitality amenities grid */}
         <AmenitiesPreview />
 
-        {/* culinary experience */}
+        {/* dedicated rooftop experience section */}
+        <BotanicalCafe />
+
+        {/* culinary experience showcase */}
         <Dining />
 
         {/* conscious community collage */}
@@ -93,10 +102,10 @@ function HomeView() {
         {/* guest experiences carousel */}
         <Testimonials />
 
-        {/* maps & connectivity context */}
+        {/* maps & connectivity context with nearby places grid */}
         <Location />
 
-        {/* FAQs list */}
+        {/* FAQs list with SEO schema */}
         <Faq />
 
         {/* priority reservations call to action */}
@@ -192,6 +201,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
+      <SchemaMarkup />
       
       {/* Premium responsive navbar */}
       {!isAdminRoute && <Navbar />}
@@ -246,6 +256,9 @@ export default function App() {
 
       {/* Floating high-contrast WhatsApp widget */}
       {!isAdminRoute && <WhatsAppWidget />}
+
+      {/* Persistent conversion bar for high-intent actions */}
+      {!isAdminRoute && <StickyConversionBar />}
 
       {/* Elegant, seamless preloading loader */}
       {isPreloading && !isAdminRoute && (

@@ -6,19 +6,14 @@ import { env } from '@/config/env';
 
 // Read Firebase config from environment variables
 const getFirebaseConfig = () => {
-  const metaEnv = (import.meta as any).env || {};
-  const getTrimmed = (key: string) => {
-    const val = metaEnv[key];
-    return typeof val === 'string' ? val.trim() : '';
-  };
   return {
-    apiKey: getTrimmed('NEXT_PUBLIC_FIREBASE_API_KEY') || getTrimmed('VITE_FIREBASE_API_KEY'),
-    authDomain: getTrimmed('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN') || getTrimmed('VITE_FIREBASE_AUTH_DOMAIN'),
-    projectId: getTrimmed('NEXT_PUBLIC_FIREBASE_PROJECT_ID') || getTrimmed('VITE_FIREBASE_PROJECT_ID'),
-    storageBucket: getTrimmed('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET') || getTrimmed('VITE_FIREBASE_STORAGE_BUCKET'),
-    messagingSenderId: getTrimmed('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID') || getTrimmed('VITE_FIREBASE_MESSAGING_SENDER_ID'),
-    appId: getTrimmed('NEXT_PUBLIC_FIREBASE_APP_ID') || getTrimmed('VITE_FIREBASE_APP_ID'),
-    measurementId: getTrimmed('NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID') || getTrimmed('VITE_FIREBASE_MEASUREMENT_ID'),
+    apiKey: (env.FIREBASE_API_KEY || '').trim(),
+    authDomain: (env.FIREBASE_AUTH_DOMAIN || '').trim(),
+    projectId: (env.FIREBASE_PROJECT_ID || '').trim(),
+    storageBucket: (env.FIREBASE_STORAGE_BUCKET || '').trim(),
+    messagingSenderId: (env.FIREBASE_MESSAGING_SENDER_ID || '').trim(),
+    appId: (env.FIREBASE_APP_ID || '').trim(),
+    measurementId: (env.FIREBASE_MEASUREMENT_ID || '').trim(),
   };
 };
 

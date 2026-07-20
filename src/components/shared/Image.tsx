@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, ImgHTMLAttributes } from 'react';
 import { cn } from '@/utils/cn';
 import { getDirectMediaUrl } from '@/utils/media';
+import { IconWrapper } from './IconWrapper';
 
 // Global cache to track already-loaded image URLs to prevent rendering-flicker on filter/tab changes
 const loadedImagesGlobal = new Set<string>();
@@ -34,25 +35,30 @@ export function Image({
   });
   const imgRef = useRef<HTMLImageElement>(null);
 
+  // Use a ref to track the current src to avoid unnecessary effects
+  const prevSrcRef = useRef(resolvedSrc);
+
   useEffect(() => {
     const nextSrc = getDirectMediaUrl(src);
-    if (nextSrc !== imgSrc) {
+    if (nextSrc !== prevSrcRef.current) {
+      prevSrcRef.current = nextSrc;
       setImgSrc(nextSrc);
-      setIsLoaded(loadedImagesGlobal.has(nextSrc));
+      const alreadyLoaded = loadedImagesGlobal.has(nextSrc);
+      setIsLoaded(alreadyLoaded);
     }
-  }, [src, imgSrc]);
+  }, [src]);
 
   // Handle cached images that are already loaded when DOM is ready or src changes
   useEffect(() => {
-    if (loadedImagesGlobal.has(imgSrc)) {
-      setIsLoaded(true);
-      return;
+    if (!isLoaded) {
+      if (loadedImagesGlobal.has(imgSrc)) {
+        setIsLoaded(true);
+      } else if (imgRef.current && imgRef.current.complete) {
+        setIsLoaded(true);
+        loadedImagesGlobal.add(imgSrc);
+      }
     }
-    if (imgRef.current && imgRef.current.complete) {
-      setIsLoaded(true);
-      loadedImagesGlobal.add(imgSrc);
-    }
-  }, [imgSrc]);
+  }, [imgSrc, isLoaded]);
 
   const aspectStyles = {
     square: 'aspect-square',
@@ -84,11 +90,11 @@ export function Image({
       {!isLoaded && imgSrc && (
         <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-stone/10 via-stone/20 to-stone/10" />
       )}
-      {imgSrc && (
+      {imgSrc ? (
         <img
           ref={imgRef}
           id={id}
-          src={imgSrc}
+          src={imgSrc || undefined}
           alt={alt}
           loading={loading}
           referrerPolicy="no-referrer"
@@ -110,6 +116,10 @@ export function Image({
           )}
           {...props}
         />
+      ) : (
+        <div className="w-full h-full bg-stone/50 flex items-center justify-center text-stone-400">
+          <IconWrapper name="Zap" size={24} className="opacity-20" />
+        </div>
       )}
     </div>
   );

@@ -14,28 +14,59 @@ export function getDirectMediaUrl(url: string | undefined | null): string {
     }
   }
 
-  // Ensure absolute protocol
-  if (finalUrl && !finalUrl.startsWith('http') && !finalUrl.startsWith('/') && !finalUrl.startsWith('blob:')) {
-    finalUrl = 'https://' + finalUrl;
+  // Clean URL of all spaces, quotes, and newlines to handle accidental copy-paste issues
+  const cleanUrl = finalUrl.replace(/[\s"']/g, '');
+
+  let fileId = '';
+
+  // 1. Direct raw Google Drive File ID: length 28 to 50, contains only valid ID characters, no dots, slashes, or special URL chars
+  if (/^[a-zA-Z0-9_-]{28,50}$/.test(cleanUrl)) {
+    fileId = cleanUrl;
   }
 
-  // Convert Google Drive view/sharing URL to direct raw image/video source stream URL
-  let fileId = '';
-  const driveMatch1 = finalUrl.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  const driveMatch2 = finalUrl.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-  const driveMatch3 = finalUrl.match(/drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/);
-  
-  if (driveMatch1) {
-    fileId = driveMatch1[1];
-  } else if (driveMatch2) {
-    fileId = driveMatch2[1];
-  } else if (driveMatch3) {
-    fileId = driveMatch3[1];
+  // 2. Query parameter "id" inside a Google Drive URL
+  if (!fileId) {
+    const idParamMatch = cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]{28,50})/);
+    if (idParamMatch && idParamMatch[1]) {
+      fileId = idParamMatch[1];
+    }
+  }
+
+  // 3. Any /d/ or d/ folder pattern followed by a valid Google Drive ID format
+  if (!fileId) {
+    const dPathMatch = cleanUrl.match(/(?:\/|^)d\/([a-zA-Z0-9_-]{25,50})/);
+    if (dPathMatch && dPathMatch[1]) {
+      fileId = dPathMatch[1];
+    }
+  }
+
+  // 4. Fallback patterns for general drive/docs paths
+  if (!fileId) {
+    const patterns = [
+      /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/,
+      /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/,
+      /drive\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/,
+      /lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/,
+      /docs\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/
+    ];
+
+    for (const pattern of patterns) {
+      const match = cleanUrl.match(pattern);
+      if (match && match[1]) {
+        fileId = match[1];
+        break;
+      }
+    }
   }
 
   if (fileId) {
     // For images/videos, lh3.googleusercontent.com is fast, has perfect CORS, and doesn't hit download limits
     return `https://lh3.googleusercontent.com/d/${fileId}`;
+  }
+
+  // Ensure absolute protocol for non-drive URLs if they are missing it
+  if (finalUrl && !finalUrl.startsWith('http') && !finalUrl.startsWith('/') && !finalUrl.startsWith('blob:')) {
+    finalUrl = 'https://' + finalUrl;
   }
 
   // Robust Pexels URL Parser to get direct source download

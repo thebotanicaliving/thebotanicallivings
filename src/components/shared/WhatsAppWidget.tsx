@@ -115,7 +115,7 @@ export function WhatsAppWidget() {
                   <div className="flex items-center space-x-3.5">
                     <div className="w-10 h-10 rounded-full bg-primary-forest/40 flex items-center justify-center border border-gold-accent/20 relative">
                       <span className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-gold-accent rounded-full border border-dark-forest animate-pulse" />
-                      <IconWrapper name="whatsapp" className="text-gold-accent fill-current" size={18} />
+                      <IconWrapper name="whatsapp" className="text-gold-accent" size={18} />
                     </div>
                     <div>
                       <h4 className="font-heading text-sm font-medium tracking-wide text-warm-cream">Botanical Concierge</h4>
@@ -155,7 +155,7 @@ export function WhatsAppWidget() {
                     className="flex items-center justify-center space-x-2.5 w-full py-4 bg-dark-forest hover:bg-primary-forest text-warm-cream border border-gold-accent/30 font-button text-xs font-semibold tracking-widest uppercase rounded-button shadow-md hover:shadow-lg transition-all duration-300"
                     onClick={() => setIsOpen(false)}
                   >
-                    <IconWrapper name="whatsapp" className="fill-current text-gold-accent" size={14} />
+                    <IconWrapper name="whatsapp" className="text-gold-accent" size={14} />
                     <span>Inquire via WhatsApp</span>
                   </a>
 
@@ -192,7 +192,7 @@ export function WhatsAppWidget() {
               aria-label="Contact reservations on WhatsApp"
             >
               <span className="absolute top-1 right-1 w-3 h-3 bg-gold-accent border-2 border-dark-forest rounded-full" />
-              <IconWrapper name="whatsapp" className="w-6 h-6 text-gold-accent fill-current" size={24} />
+              <IconWrapper name="whatsapp" className="w-6 h-6 text-gold-accent" size={24} />
             </motion.button>
           </div>
         </motion.div>

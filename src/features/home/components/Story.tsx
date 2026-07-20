@@ -17,7 +17,7 @@ export function Story() {
         <ScrollReveal variant="slideRight" className="lg:col-span-5 order-2 lg:order-1">
           <Image
             src={config.storyImageUrl}
-            alt="Botanical Living co-living space Kondapur"
+            alt="Luxury Room at Botanical Living co-living space Kondapur"
             aspectRatio="portrait"
             radius="image"
             className="shadow-subtle hover:scale-[1.01] transition-transform duration-500"

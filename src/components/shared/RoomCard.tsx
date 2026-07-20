@@ -26,7 +26,7 @@ export function RoomCard({ room }: RoomCardProps) {
         <Link to={`/rooms/${room.slug}`}>
           <Image
             src={room.coverImage}
-            alt={room.title}
+            alt={`Premium Coliving Rooms in Kondapur - ${room.title}`}
             aspectRatio="landscape"
             radius="none"
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -89,7 +89,11 @@ export function RoomCard({ room }: RoomCardProps) {
               Pricing Details
             </span>
             <span className="font-sans text-base font-bold text-gold-accent">
-              {`${room.price} ${room.priceSuffix || ""}`}
+              {(room.price || room.pricing) ? (
+                `${room.price || room.pricing} ${room.priceSuffix || ""}`
+              ) : (
+                "Request Quote"
+              )}
             </span>
           </div>
 

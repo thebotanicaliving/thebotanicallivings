@@ -99,7 +99,7 @@ Thank you.`;
             className="w-full justify-center gap-2 text-xs uppercase tracking-widest py-3 rounded-full shadow-md hover:scale-[1.01]"
           >
             Connect on WhatsApp
-            <IconWrapper name="whatsapp" className="fill-current" size={16} />
+            <IconWrapper name="whatsapp" className="" size={16} />
           </Button>
           <p className="text-[10px] text-text-secondary font-light mt-2 italic">
             Connecting on WhatsApp ensures priority callback within 15 minutes.

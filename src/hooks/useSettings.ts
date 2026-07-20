@@ -6,33 +6,26 @@ export function useSettings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchSettings = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await settingsService.getSettings();
-      setSettings(data);
-      setError(null);
-    } catch (err: any) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
+    setLoading(true);
+    const unsubscribe = settingsService.subscribeSettings((data) => {
+      setSettings(data);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const updateSettings = async (updates: Partial<BusinessSettings>) => {
     try {
       setLoading(true);
       await settingsService.updateSettings(updates);
-      await fetchSettings();
     } catch (err: any) {
       setError(err);
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { settings, loading, error, refresh: fetchSettings, updateSettings };
+  return { settings, loading, error, refresh: () => {}, updateSettings };
 }

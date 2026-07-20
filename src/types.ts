@@ -90,12 +90,25 @@ export interface RoomAvailability {
   lastUpdated: string;
 }
 
+export interface BlogSection {
+  id: string;
+  type: 'text' | 'image' | 'text-image' | 'quote';
+  title?: string;
+  content?: string;
+  imageUrl?: string;
+  imageCaption?: string;
+  imageLayout?: 'left' | 'right' | 'full' | 'grid-two';
+  imageUrlSecond?: string;
+  imageCaptionSecond?: string;
+}
+
 export interface Blog {
   id: string;
   title: string;
   slug: string;
   excerpt: string;
-  content: string; // supports markdown
+  content: string; // supports markdown fallback
+  sections?: BlogSection[]; // rich section-wise layout
   coverImage: string;
   category: string;
   tags: string[];
@@ -179,6 +192,8 @@ export interface BookingRequest {
   // Pricing breakdown
   baseAmount: number;
   extraGuestsAmount: number;
+  foodAmount: number;
+  selectedFoodOptions?: string[];
   taxesAmount: number;
   cleaningFee: number;
   platformFee: number;

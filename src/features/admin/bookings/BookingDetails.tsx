@@ -10,7 +10,7 @@ import { ConfirmDialog } from '@/components/admin/dialogs/ConfirmDialog';
 export function BookingDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { booking, loading, refresh } = useBooking(id);
+  const { booking, loading } = useBooking(id);
   const { showToast } = useToast();
   const [notes, setNotes] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -28,7 +28,6 @@ export function BookingDetails() {
     try {
       await bookingService.updateBookingStatus(id, newStatus);
       showToast(successMessage, 'success');
-      refresh();
     } catch (error) {
       showToast(`Failed to update stay status to ${newStatus}`, 'error');
     } finally {
@@ -41,7 +40,6 @@ export function BookingDetails() {
     try {
       await bookingService.updateBookingNotes(id, notes);
       showToast('Internal notes saved successfully', 'success');
-      refresh();
     } catch (error) {
       showToast('Failed to save notes', 'error');
     }

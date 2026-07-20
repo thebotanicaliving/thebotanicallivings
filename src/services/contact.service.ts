@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import { ContactRequest } from '@/types';
 
@@ -47,6 +47,24 @@ export const contactService = {
       console.error('Error fetching contact messages:', error);
       return JSON.parse(localStorage.getItem('botanical_contact_requests') || '[]');
     }
+  },
+
+  subscribeContactRequests(callback: (requests: ContactRequest[]) => void): () => void {
+    if (!db) {
+      callback(JSON.parse(localStorage.getItem('botanical_contact_requests') || '[]'));
+      return () => {};
+    }
+
+    const q = query(collection(db, 'contactRequests'), orderBy('createdAt', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+      const list: ContactRequest[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push({ id: docSnap.id, ...docSnap.data() } as ContactRequest);
+      });
+      callback(list);
+    }, (error) => {
+      console.error('[ContactService] Error subscribing to contact requests:', error);
+    });
   },
 
   async updateContactStatus(id: string, status: ContactRequest['status'] | 'reviewed' | 'archived'): Promise<void> {

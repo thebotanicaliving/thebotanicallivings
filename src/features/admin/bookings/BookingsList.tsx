@@ -7,7 +7,7 @@ import { bookingService } from '@/services/booking.service';
 import { useToast } from '@/providers/ToastProvider';
 
 export function BookingsList() {
-  const { bookings, loading, refresh } = useBookings();
+  const { bookings, loading } = useBookings();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -26,7 +26,6 @@ export function BookingsList() {
     try {
       await bookingService.updateBookingStatus(id, newStatus);
       showToast('Status updated successfully', 'success');
-      refresh();
     } catch (error) {
       showToast('Failed to update status', 'error');
     }

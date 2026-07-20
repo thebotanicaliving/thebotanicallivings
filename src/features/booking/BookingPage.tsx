@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Section, Container, Heading, Paragraph, Button, Card } from '@/components/shared';
-import { ChevronLeft, CreditCard, X, Calendar, Home, Shield, Check } from 'lucide-react';
+import { ChevronLeft, CreditCard, X, Calendar, Home, Shield, Check, Coffee, Utensils, Moon } from 'lucide-react';
 import { useRooms } from '@/hooks/useRooms';
 import { db } from '@/firebase/firebase';
 import { collection, doc, setDoc, getDocs, query, orderBy, limit, writeBatch } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { availabilityService } from '@/services/availability.service';
 import { Room } from '@/types';
+import { getDirectMediaUrl } from '@/utils/media';
 
 // Declare global Razorpay interface
 declare global {
@@ -40,10 +41,20 @@ export function BookingPage() {
   const [checkOutDate, setCheckOutDate] = useState(getThreeDaysLaterString());
   const [adultsCount, setAdultsCount] = useState(1);
   const [childrenCount, setChildrenCount] = useState(0);
+  const [selectedFoodIds, setSelectedFoodIds] = useState<string[]>([]);
   
   const [availableRooms, setAvailableRooms] = useState<any[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState('');
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+
+  // Toggle food option
+  const toggleFoodOption = (id: string) => {
+    setSelectedFoodIds(prev => {
+      const updated = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id];
+      recalculatePrice(updated);
+      return updated;
+    });
+  };
 
   // Guest Details (Step 2)
   const [guestInfo, setGuestInfo] = useState({
@@ -127,7 +138,9 @@ export function BookingPage() {
             remainingRooms: inv.remainingRooms,
             totalRooms: inv.totalRooms,
             isBlocked: inv.isBlockedByMaintenance,
-            pricingRules: rules
+            pricingRules: rules,
+            currentResidents: inv.currentResidents !== undefined ? inv.currentResidents : (room.currentResidents || 0),
+            maxCapacity: inv.maxCapacity !== undefined ? inv.maxCapacity : (room.maxCapacity || room.occupancy || 2)
           });
         }
         if (isMounted) {
@@ -170,7 +183,8 @@ export function BookingPage() {
         checkOutDate,
         adultsCount + childrenCount,
         adultsCount,
-        childrenCount
+        childrenCount,
+        selectedFoodIds
       );
       setPriceDetails(calc);
       setStep(2); // Direct to Guest details!
@@ -190,6 +204,32 @@ export function BookingPage() {
       return;
     }
     setStep(3); // Direct to Summary
+  };
+
+  const recalculatePrice = async (foodIds: string[]) => {
+    if (!selectedRoomId) return;
+    try {
+      const calc = await availabilityService.calculateLivePrice(
+        selectedRoomId,
+        checkInDate,
+        checkOutDate,
+        adultsCount + childrenCount,
+        adultsCount,
+        childrenCount,
+        foodIds
+      );
+      setPriceDetails(calc);
+    } catch (err) {
+      console.error('Error recalculating pricing:', err);
+    }
+  };
+
+  const handleCheckoutFoodToggle = (id: string) => {
+    const updated = selectedFoodIds.includes(id)
+      ? selectedFoodIds.filter(f => f !== id)
+      : [...selectedFoodIds, id];
+    setSelectedFoodIds(updated);
+    recalculatePrice(updated);
   };
 
   // Sequential human readable booking reference generator
@@ -232,12 +272,14 @@ export function BookingPage() {
             checkOutDate,
             adultsCount,
             childrenCount,
+            selectedFoodIds,
             receipt: `rcpt_${bookingRef}`
           })
         });
 
         if (!orderResponse.ok) {
-          throw new Error('Failed to create payment order on our secure server.');
+          const errData = await orderResponse.json().catch(() => ({}));
+          throw new Error(errData.message || errData.error || 'Failed to create payment order on our secure server.');
         }
 
         const orderData = await orderResponse.json();
@@ -261,12 +303,14 @@ export function BookingPage() {
           notes: guestInfo.notes,
           aadhaarNumber: guestInfo.aadhaarNumber,
           permanentAddress: guestInfo.permanentAddress,
+          selectedFoodOptions: selectedFoodIds,
+          foodAmount: priceDetails.foodAmount,
           advanceAmount: priceDetails.advanceAmount, // Used for backend validation assertion
         };
 
         // 2. Open Razorpay Standard Checkout modal with the returned order_id
         const options = {
-          key: (import.meta as any).env?.NEXT_PUBLIC_RAZORPAY_KEY_ID || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || 'rzp_test_TCXVBQWuZe0BwI',
+          key: orderData.key_id || (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || (import.meta as any).env?.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TFf1vtuOkzqE8z',
           amount: orderData.amount,
           currency: orderData.currency,
           name: 'Botanical Living & Stays',
@@ -448,6 +492,8 @@ export function BookingPage() {
                       </div>
                     </div>
 
+
+
                     <div className="space-y-6 pt-6 border-t border-border/20">
                       <div className="flex items-center justify-between">
                         <h3 className="text-xl font-light text-dark-forest">Available Luxury Suites</h3>
@@ -497,6 +543,13 @@ export function BookingPage() {
                                     <span>•</span>
                                     <span>Remaining suites: {room.available ? room.remainingRooms : 0} of {room.totalRooms}</span>
                                   </div>
+
+                                  {Number(room.maxCapacity || 2) === 2 && Number(room.currentResidents || 0) > 0 && (
+                                    <div className="text-[10.5px] text-amber-800 bg-amber-50/70 border border-amber-100/60 rounded-lg px-2.5 py-1 mt-2 inline-flex items-center gap-1.5 font-medium font-sans">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                      Double Sharing: 1 occupant currently resident. Second sharing bed open & ready for booking!
+                                    </div>
+                                  )}
                                 </div>
 
                                 <div className="flex md:flex-col items-baseline md:items-end justify-between md:justify-center shrink-0 border-t md:border-t-0 md:border-l border-border/20 pt-4 md:pt-0 md:pl-6 gap-4">
@@ -640,7 +693,60 @@ export function BookingPage() {
                       * Your Aadhaar Card details will be securely verified in-person during check-in.
                     </p>
 
-                    <div className="space-y-2">
+                    {/* Food Subscription Preferences - Portrayed beautifully here in Guest credentials section */}
+                    <div className="space-y-4 pt-4 border-t border-border/20">
+                      <div>
+                        <h4 className="text-sm font-medium text-dark-forest font-button">Food Subscription Preferences</h4>
+                        <p className="text-xs text-text-secondary mt-0.5">Customize your meals for your stay. Subscriptions are pro-rated on daily basis for shorter stays.</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {[
+                          { id: 'breakfast', name: 'Breakfast (Tiffin)', price: 2000, desc: 'Fresh South Indian & continental breakfast', icon: Coffee },
+                          { id: 'lunch', name: 'Homely Lunch', price: 3500, desc: 'Healthy afternoon meals (Veg/Non-Veg options)', icon: Utensils },
+                          { id: 'dinner', name: 'Premium Dinner', price: 3500, desc: 'Satisfying evening meals with regional variety', icon: Moon }
+                        ].map(food => {
+                          const isSelected = selectedFoodIds.includes(food.id);
+                          const FoodIcon = food.icon;
+                          return (
+                            <div 
+                              key={food.id}
+                              onClick={() => toggleFoodOption(food.id)}
+                              className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between space-y-3 relative overflow-hidden select-none ${
+                                isSelected 
+                                  ? 'border-gold-accent bg-gold-accent/[0.04] ring-1 ring-gold-accent shadow-sm' 
+                                  : 'border-border/40 bg-white hover:border-gold-accent/40 shadow-none'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-gold-accent text-white' : 'bg-[#F7F5EF] text-text-secondary'}`}>
+                                  <FoodIcon size={18} />
+                                </div>
+                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                                  isSelected 
+                                    ? 'bg-gold-accent border-gold-accent text-white' 
+                                    : 'border-border/80 bg-white'
+                                }`}>
+                                  {isSelected && <Check size={11} strokeWidth={3} />}
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <div className="text-sm font-semibold text-dark-forest">{food.name}</div>
+                                <p className="text-[11px] leading-relaxed text-text-secondary min-h-[32px]">{food.desc}</p>
+                              </div>
+                              
+                              <div className="pt-2 border-t border-border/10 flex items-center justify-between">
+                                <span className="text-[10px] text-text-secondary uppercase tracking-wider font-semibold">Subscription</span>
+                                <span className="text-xs font-bold text-gold-accent">₹{food.price}/mo</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-4 border-t border-border/20">
                       <label className="text-[10px] uppercase tracking-wider font-semibold text-text-secondary font-button">Bespoke Requests / Arrival Notes</label>
                       <textarea
                         name="notes"
@@ -692,48 +798,122 @@ export function BookingPage() {
                         </span>
                       </div>
 
-                      <div className="space-y-3 pt-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-text-secondary">Base Suite Rate ({priceDetails.nights} Nights)</span>
-                          <span className="font-medium text-dark-forest">₹{priceDetails.baseAmount}</span>
+                      {/* Food Options in Checkout (Only for Single Sharing Rooms) */}
+                      {selectedRoom?.title?.toLowerCase().includes('single') && (
+                        <div className="bg-emerald-50/40 border border-emerald-100 p-6 rounded-2xl space-y-4">
+                          <div>
+                            <h4 className="text-sm font-semibold text-dark-forest">Customize Your Premium Food Plan</h4>
+                            <p className="text-[11px] text-stone-500 mt-1">Select your meals below. Selected options will be added directly to your stay total.</p>
+                          </div>
+                          <div className="space-y-3">
+                            {[
+                              { 
+                                id: 'breakfast', 
+                                name: 'Breakfast (Tiffin)', 
+                                price: 2000, 
+                                description: 'Healthy and homemade morning tiffin, tea, and refreshments served hot.' 
+                              },
+                              { 
+                                id: 'lunch', 
+                                name: 'Lunch', 
+                                price: 3500, 
+                                description: 'Nutritious lunch with wholesome regional flavors and dynamic vegetarian/non-vegetarian gourmet choices.' 
+                              },
+                              { 
+                                id: 'dinner', 
+                                name: 'Dinner', 
+                                price: 3500, 
+                                description: 'Premium dinner balancing hygiene and exquisite taste, prepared with fresh local produce.' 
+                              }
+                            ].map(food => {
+                              const isSelected = selectedFoodIds.includes(food.id);
+                              // Pro-rated price calculation for display
+                              const displayPrice = priceDetails.nights < 30 
+                                ? Math.round((food.price / 30) * priceDetails.nights)
+                                : food.price * Math.ceil(priceDetails.nights / 30);
+
+                              return (
+                                <div 
+                                  key={food.id}
+                                  onClick={() => handleCheckoutFoodToggle(food.id)}
+                                  className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start space-x-3 bg-white ${
+                                    isSelected 
+                                      ? 'border-gold-accent bg-gold-accent/5 ring-1 ring-gold-accent' 
+                                      : 'border-border/30 hover:border-gold-accent/40'
+                                  }`}
+                                >
+                                  <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${isSelected ? 'bg-gold-accent text-white' : 'bg-stone-50 text-stone-400'}`}>
+                                    <Check size={14} className={isSelected ? 'opacity-100' : 'opacity-0'} />
+                                  </div>
+                                  <div className="flex-grow">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs font-bold text-dark-forest">{food.name}</span>
+                                      <span className="text-xs font-semibold text-gold-accent">
+                                        ₹{food.price}/mo <span className="text-[10px] text-stone-400 font-normal">(₹{displayPrice} for {priceDetails.nights} nights)</span>
+                                      </span>
+                                    </div>
+                                    <p className="text-[11px] text-text-secondary mt-1 leading-relaxed">
+                                      {food.description}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="space-y-4 pt-2">
+                        {/* Room Rate on Daily and Monthly Basis */}
+                        <div className="p-4 rounded-xl bg-[#F7F5EF] border border-border/10 space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="font-medium text-dark-forest">Suite Room Rate</span>
+                            <span className="font-bold text-dark-forest">₹{priceDetails.baseAmount}</span>
+                          </div>
+                          <div className="flex justify-between text-xs text-text-secondary font-mono">
+                            <span>Daily Basis: ₹{priceDetails.basePricePerNight}/day</span>
+                            <span>Monthly Basis: ₹{priceDetails.basePricePerNight * 30}/month</span>
+                          </div>
                         </div>
 
                         {priceDetails.extraGuestsAmount > 0 && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-text-secondary">Extra Guest Charges</span>
+                          <div className="flex justify-between text-sm px-1">
+                            <span className="text-text-secondary">Extra Guest Charges ({priceDetails.nights} Nights)</span>
                             <span className="font-medium text-dark-forest">₹{priceDetails.extraGuestsAmount}</span>
                           </div>
                         )}
 
-                        <div className="flex justify-between text-sm">
-                          <span className="text-text-secondary">Cleaning Services</span>
-                          <span className="font-medium text-dark-forest">₹{priceDetails.cleaningFee}</span>
-                        </div>
-
-                        <div className="flex justify-between text-sm">
-                          <span className="text-text-secondary">Platform Concierge Handling</span>
-                          <span className="font-medium text-dark-forest">₹{priceDetails.platformFee}</span>
-                        </div>
-
-                        <div className="flex justify-between text-sm border-b border-stone-100 pb-3">
-                          <span className="text-text-secondary">Refundable Security Deposit</span>
-                          <span className="font-medium text-dark-forest">₹{priceDetails.securityDeposit}</span>
-                        </div>
+                        {/* Selected Food Rates on Monthly Basis */}
+                        {priceDetails.foodAmount > 0 && (
+                          <div className="p-4 rounded-xl bg-[#F7F5EF] border border-border/10 space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="font-medium text-dark-forest">Food Subscription Rate</span>
+                              <span className="font-bold text-dark-forest">₹{priceDetails.foodAmount}</span>
+                            </div>
+                            <div className="space-y-1">
+                              {[
+                                { id: 'breakfast', name: 'Breakfast (Tiffin)', price: 2000 },
+                                { id: 'lunch', name: 'Lunch', price: 3500 },
+                                { id: 'dinner', name: 'Dinner', price: 3500 }
+                              ].filter(f => priceDetails.selectedFoodIds.includes(f.id)).map(food => (
+                                <div key={food.id} className="flex justify-between text-xs text-text-secondary font-mono">
+                                  <span>{food.name} Subscription</span>
+                                  <span>₹{food.price}/month</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                         {priceDetails.discountAmount > 0 && (
-                          <div className="flex justify-between text-sm text-emerald-600">
-                            <span>Aesthetic Discount ({priceDetails.discountPercent}%)</span>
+                          <div className="flex justify-between text-sm text-emerald-600 px-1 pt-1">
+                            <span>Special Promo Discount ({priceDetails.discountPercent}%)</span>
                             <span>-₹{priceDetails.discountAmount}</span>
                           </div>
                         )}
 
-                        <div className="flex justify-between text-sm border-b border-stone-100 pb-3">
-                          <span className="text-text-secondary">GST & Taxes ({priceDetails.taxesPercent}%)</span>
-                          <span className="font-medium text-dark-forest">₹{priceDetails.taxesAmount}</span>
-                        </div>
-
-                        <div className="flex justify-between text-lg font-bold text-dark-forest pt-1">
-                          <span>Grand Total (Stay complete billing)</span>
+                        <div className="flex justify-between text-base font-bold text-dark-forest pt-3 border-t border-border/20 px-1">
+                          <span>Stay Grand Total</span>
                           <span>₹{priceDetails.grandTotal}</span>
                         </div>
 
@@ -783,11 +963,42 @@ export function BookingPage() {
                       </Paragraph>
                     </div>
 
+                    {paymentError && (
+                      <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs max-w-md mx-auto text-center font-medium font-sans">
+                        {paymentError}
+                      </div>
+                    )}
+
+                    {/* Razorpay Test Mode Guide Card */}
+                    <div className="p-5 bg-stone-50 border border-stone-200 rounded-xl text-left max-w-md mx-auto space-y-3 font-sans shadow-sm">
+                      <h4 className="text-[11px] font-bold text-stone-700 tracking-wider uppercase">Razorpay INR Test Mode Guide</h4>
+                      <p className="text-xs text-stone-600 leading-relaxed">
+                        Since this is a standard Indian test-mode gateway, international test cards (like <code className="bg-stone-200 px-1 py-0.5 rounded text-stone-800 font-mono">4111 1111 1111 1111</code>) are blocked.
+                      </p>
+                      <div className="space-y-2 text-xs text-stone-600 font-medium">
+                        <div className="flex justify-between border-b border-stone-200/60 pb-1.5 items-center">
+                          <span>💳 Domestic Card (Visa):</span>
+                          <span className="font-mono text-dark-forest bg-gold-accent/10 px-2 py-0.5 rounded">4012 0010 3000 0004</span>
+                        </div>
+                        <div className="flex justify-between border-b border-stone-200/60 pb-1.5 items-center">
+                          <span>💳 Domestic Card (Mastercard):</span>
+                          <span className="font-mono text-dark-forest bg-gold-accent/10 px-2 py-0.5 rounded">5124 4500 0000 0001</span>
+                        </div>
+                        <div className="flex justify-between border-b border-stone-200/60 pb-1.5 items-center">
+                          <span>📱 UPI Test ID:</span>
+                          <span className="font-mono text-dark-forest bg-gold-accent/10 px-2 py-0.5 rounded">test@razorpay</span>
+                        </div>
+                        <div className="text-stone-500 font-light text-[11px] pt-1 leading-normal">
+                          💡 You can also choose <strong>Netbanking</strong> or <strong>UPI</strong> inside the overlay and click "Success" to bypass card limits entirely.
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mx-auto pt-4">
                       <Button
                         onClick={handlePayAdvance}
                         variant="primary"
-                        className="w-full sm:w-auto px-8 py-3 text-xs justify-center rounded-xl"
+                        className="w-full sm:w-auto px-8 py-3 text-xs justify-center rounded-xl font-sans"
                         disabled={paymentProcessing}
                       >
                         {paymentProcessing ? 'Processing Transaction...' : 'Launch Razorpay Modal'}
@@ -796,7 +1007,7 @@ export function BookingPage() {
                       <Button
                         onClick={() => setStep(3)}
                         variant="outline"
-                        className="w-full sm:w-auto px-8 py-3 text-xs justify-center rounded-xl"
+                        className="w-full sm:w-auto px-8 py-3 text-xs justify-center rounded-xl font-sans"
                         disabled={paymentProcessing}
                       >
                         Back
@@ -877,7 +1088,7 @@ export function BookingPage() {
                   {selectedRoom ? (
                     <div className="space-y-5 text-sm">
                       <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-sm">
-                        <img src={selectedRoom.coverImage} alt={selectedRoom.title} className="w-full h-full object-cover" />
+                        <img src={getDirectMediaUrl(selectedRoom.coverImage)} alt={selectedRoom.title} className="w-full h-full object-cover" />
                       </div>
 
                       <div className="space-y-1">

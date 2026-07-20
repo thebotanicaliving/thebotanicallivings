@@ -11,3 +11,6 @@ export * from './IconWrapper';
 export * from './WhatsAppWidget';
 export * from './ScrollReveal';
 export * from './VideoPlayer';
+export * from './RoomCard';
+export * from './Marquee';
+export * from './AvailabilityBadge';

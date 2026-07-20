@@ -7,22 +7,15 @@ export function useFAQ() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchFAQ = useCallback(async () => {
+  useEffect(() => {
     setLoading(true);
-    setError(null);
-    try {
-      const data = await faqService.getFAQItems();
+    const unsubscribe = faqService.subscribeFAQ((data) => {
       setFaqs(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch FAQ items'));
-    } finally {
       setLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    fetchFAQ();
-  }, [fetchFAQ]);
-
-  return { faqs, loading, error, refresh: fetchFAQ };
+  return { faqs, loading, error, refresh: () => {} };
 }

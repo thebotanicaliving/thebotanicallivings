@@ -7,6 +7,7 @@ import { Save, ArrowLeft, Plus, Trash2, GripVertical, Image as ImageIcon } from 
 import { useToast } from '@/providers/ToastProvider';
 import { Room } from '@/types';
 import { ConfirmDialog } from '@/components/admin/dialogs/ConfirmDialog';
+import { getDirectMediaUrl } from '@/utils/media';
 
 export function RoomForm() {
   const { id } = useParams<{ id: string }>();
@@ -102,7 +103,11 @@ export function RoomForm() {
     if (type === 'checkbox') {
       setFormData(prev => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else if (type === 'number') {
-      setFormData(prev => ({ ...prev, [name]: parseInt(value) || 0 }));
+      let numVal = parseInt(value) || 0;
+      if (name === 'maxCapacity') {
+        numVal = Math.min(2, Math.max(1, numVal));
+      }
+      setFormData(prev => ({ ...prev, [name]: numVal }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
       if (name === 'price') {
@@ -248,7 +253,7 @@ export function RoomForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Max Capacity (Residents)</label>
-                <input type="number" name="maxCapacity" value={formData.maxCapacity || 0} onChange={handleChange} className="w-full p-2 border rounded" min="1" />
+                <input type="number" name="maxCapacity" value={formData.maxCapacity || 0} onChange={handleChange} className="w-full p-2 border rounded" min="1" max="2" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Current Residents</label>
@@ -369,7 +374,7 @@ export function RoomForm() {
                   
                   {url ? (
                     <div className="w-16 h-12 flex-shrink-0 rounded overflow-hidden border">
-                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <img src={getDirectMediaUrl(url)} alt="" className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <div className="w-16 h-12 flex-shrink-0 rounded border border-dashed flex items-center justify-center text-stone-300">
@@ -417,7 +422,7 @@ export function RoomForm() {
               <label className="block text-sm font-medium mb-1">Cover Image URL *</label>
               <input type="url" name="coverImage" value={formData.coverImage || ''} onChange={handleChange} className="w-full p-2 border rounded" required />
               {formData.coverImage ? (
-                <img src={formData.coverImage} alt="Preview" className="mt-2 w-full h-40 object-cover rounded border" />
+                <img src={getDirectMediaUrl(formData.coverImage)} alt="Preview" className="mt-2 w-full h-40 object-cover rounded border" />
               ) : (
                 <div className="mt-2 w-full h-40 bg-stone-100 rounded border flex items-center justify-center text-stone-400">
                   No Cover Image

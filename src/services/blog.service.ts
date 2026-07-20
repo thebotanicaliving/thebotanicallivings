@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, limit } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import { Blog } from '@/types';
 
@@ -32,6 +32,25 @@ export const blogService = {
       console.warn('[BlogService] Error fetching blogs from Firestore. Using fallback data.', error);
       return [];
     }
+  },
+
+  subscribeBlogs(callback: (blogs: Blog[]) => void): () => void {
+    if (!db) {
+      callback([]);
+      return () => {};
+    }
+
+    const q = collection(db, 'blogs');
+    return onSnapshot(q, (snapshot) => {
+      const blogs: Blog[] = [];
+      snapshot.forEach((docSnap) => {
+        blogs.push({ id: docSnap.id, ...docSnap.data() } as Blog);
+      });
+      blogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      callback(blogs);
+    }, (error) => {
+      console.error('[BlogService] Error subscribing to blogs:', error);
+    });
   },
 
   async createBlog(blog: Omit<Blog, 'id'>): Promise<string> {

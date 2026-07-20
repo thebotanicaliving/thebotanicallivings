@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { RoomAvailability } from '@/types';
 import { roomService } from '@/services/room.service';
 
@@ -7,26 +7,20 @@ export function useAvailability(roomId: string | undefined) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchAvailability = useCallback(async () => {
+  useEffect(() => {
     if (!roomId) {
       setLoading(false);
       return;
     }
+
     setLoading(true);
-    setError(null);
-    try {
-      const data = await roomService.getRoomAvailability(roomId);
+    const unsubscribe = roomService.subscribeAvailability(roomId, (data) => {
       setAvailability(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(`Failed to fetch availability for ${roomId}`));
-    } finally {
       setLoading(false);
-    }
+    });
+
+    return () => unsubscribe();
   }, [roomId]);
 
-  useEffect(() => {
-    fetchAvailability();
-  }, [fetchAvailability]);
-
-  return { availability, loading, error, retry: fetchAvailability };
+  return { availability, loading, error };
 }
