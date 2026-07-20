@@ -1,0 +1,381 @@
+{
+  "rooms": [
+    {
+      "id": "single-sharing",
+      "slug": "single-sharing",
+      "title": "Single Sharing Premium Room",
+      "description": "Private. Peaceful. Perfect. Enjoy complete privacy and quiet in a spacious fully furnished room with your own study setup, wardrobe, and attached washroom. Beautifully designed with rich natural wood finishes and overlooking lush greenery.",
+      "coverImage": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1200&auto=format&fit=crop",
+      "gallery": [
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1200&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1200&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop"
+      ],
+      "occupancy": 1,
+      "pricing": "₹27,000 / month",
+      "amenities": [
+        "Attached Private Washroom",
+        "Premium Study Desk & Ergonomic Chair",
+        "Spacious Wardrobe & Storage Units",
+        "Comfortable Orthopaedic Mattress",
+        "High-Speed Wi-Fi (Up to 200 Mbps)",
+        "24/7 Power Backup",
+        "Split Air Conditioning Unit",
+        "Plenty of Natural Light"
+      ],
+      "services": [
+        "Daily Housekeeping & Bathroom Sanitation",
+        "Homely Food Included (3 Meals Daily)",
+        "6 Days of Premium Non-Veg Dishes Weekly",
+        "In-House Free Laundry & Professional Ironing",
+        "24/7 Security & CCTV Surveillance"
+      ],
+      "availabilityId": "single-sharing",
+      "featured": true,
+      "displayOrder": 1,
+      "seo": {
+        "title": "Premium Single Sharing Room in Kondapur, Hyderabad",
+        "description": "Fully furnished, quiet co-living rooms designed for professionals and students. High-speed Wi-Fi, laundry, and homely food included."
+      }
+    },
+    {
+      "id": "two-sharing",
+      "slug": "two-sharing",
+      "title": "Two Sharing Companion Room",
+      "description": "Better Together. Share a beautifully furnished premium room comfortably with individual study desks, separate storage wardrobes, and separate comfortable beds. Designed with thoughtful layouts to respect personal boundaries while fostering connections.",
+      "coverImage": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
+      "gallery": [
+        "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1200&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop"
+      ],
+      "occupancy": 2,
+      "pricing": "₹17,000 / head",
+      "amenities": [
+        "Attached Washroom with Premium Fittings",
+        "Two Individual Study Desks & Chairs",
+        "Two Separate Wardrobes with In-Built Safety Lockers",
+        "Two Individual Comfortable Beds",
+        "High-Speed Dual-Band Wi-Fi",
+        "24/7 Power Backup",
+        "Air Conditioning with Individual Remote"
+      ],
+      "services": [
+        "Daily Housekeeping & Deep Cleaning",
+        "Homely Food Included (3 Meals Daily)",
+        "6 Days of Premium Non-Veg Dishes Weekly",
+        "In-House Free Laundry & Professional Ironing",
+        "24/7 Security & CCTV Surveillance"
+      ],
+      "availabilityId": "two-sharing",
+      "featured": true,
+      "displayOrder": 2,
+      "seo": {
+        "title": "Premium Two Sharing Co-Living Room in Kondapur, Hyderabad",
+        "description": "Comfortable, spacious shared room with individual work desks and separate storage. Daily cleaning, laundry, and delicious food included."
+      }
+    }
+  ],
+  "roomAvailability": {
+    "single-sharing": {
+      "roomId": "single-sharing",
+      "status": "Available",
+      "availableRooms": 4,
+      "totalRooms": 12,
+      "lastUpdated": "Updated 2 hours ago"
+    },
+    "two-sharing": {
+      "roomId": "two-sharing",
+      "status": "Limited",
+      "availableRooms": 2,
+      "totalRooms": 24,
+      "lastUpdated": "Updated 1 hour ago"
+    }
+  },
+  "blogs": [
+    {
+      "id": "blog-1",
+      "slug": "eco-luxury-co-living-trends-hyderabad",
+      "title": "The Rise of Eco-Luxury Co-Living for Professionals in Hyderabad",
+      "excerpt": "How botanical-inspired spaces are reshaping modern co-living environments, optimizing productivity, mental well-being, and community bonds for remote workers.",
+      "content": "\n# The Rise of Eco-Luxury Co-Living in Kondapur\n\nModern professionals are moving away from traditional apartments and dull hostiles. The demand for **eco-luxury co-living spaces** has skyrocketed in tech hubs like Kondapur, Gachibowli, and Hitech City in Hyderabad.\n\nBut what makes an eco-luxury co-living environment different?\n\n## 1. Biophilic Design & Mental Wellness\nIntegrating nature into indoor living spaces—known as **biophilic design**—is proven to lower stress, clean indoor air, and improve cognitive performance. At *Botanical Living*, our rooms are surrounded by premium indoor plants, natural wood textures, and warm, custom illumination. This creates a soothing transition from high-intensity workdays to absolute relaxation.\n\n## 2. Productivity Zones Without the Noise\nRemote workers need high-speed connectivity and quiet zones. Unlike standard shared spaces, premium spaces offer:\n*   Individual premium study desks in every room\n*   Dedicated rooftop garden study setups\n*   Uninterrupted 24/7 power backup and 200+ Mbps Wi-Fi\n*   A respectful community atmosphere\n\n## 3. Total Chore-Free Convenience\nPremium co-living frees up hours of your weekly schedule. All of the following are completely taken care of for you:\n*   **Daily Housekeeping**: Keeping your space clean every morning.\n*   **Free In-House Laundry**: Ironed and washed clothing returned to your wardrobe.\n*   **Homely Food**: Freshly prepared meals prepared in-house, served hot.\n\nChoosing an eco-luxury co-living space is not just about finding a room—it's an investment in your productivity, peace of mind, and well-being.\n    ",
+      "coverImage": "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
+      "category": "Lifestyle",
+      "tags": [
+        "Co-Living",
+        "Wellness",
+        "Kondapur",
+        "Hyderabad"
+      ],
+      "author": "Evelyn Carter",
+      "published": true,
+      "featured": true,
+      "readingTime": "4 min read",
+      "createdAt": "2026-06-20T10:00:00Z",
+      "updatedAt": "2026-06-20T10:00:00Z",
+      "seo": {
+        "title": "Eco-Luxury Co-Living Trends in Hyderabad | Botanical Living",
+        "description": "Discover how botanical-inspired premium co-living spaces are improving productivity and well-being for tech professionals in Kondapur."
+      }
+    },
+    {
+      "id": "blog-2",
+      "slug": "balancing-productivity-wellbeing-wfh",
+      "title": "Balancing Deep Focus and Well-being: A Guide for Remote Teams",
+      "excerpt": "Creating the perfect workspace at home. From study setups with natural wood accents to rooftop green spaces, discover how environments impact output.",
+      "content": "\n# Balancing Deep Focus and Personal Well-being\n\nRemote work has given professionals autonomy, but it has also blurred the lines between working hours and personal rest. Creating an intentional, supportive workspace is the key to maintaining productivity without burning out.\n\nHere is a guide to designing a life that balances professional drive and personal wellness.\n\n## 1. Ergonomics and Natural Accents\nNever work from your bed. Investing in an ergonomic chair and a proper wooden study table prevents back pain and signals your mind that it is time to focus. Ensure your study setup is close to windows to secure enough natural sunlight, which regulates circadian rhythms and improves mood.\n\n## 2. Active Relaxation\nWhen working on complex projects, take a structured break every 90 minutes. Stroll through a green balcony or sit under natural plants. At *Botanical Living*, residents often head up to our **Terrace Café** to clear their minds amidst lush planters and panoramic views of Kondapur.\n\n## 3. Separating Work from Chores\nIf you are constantly interrupted by cooking, cleaning, or running laundry, your flow state suffers. Having these services managed by professionals lets you devote 100% of your energy to high-impact work or rewarding personal downtime.\n\n## Summary Checklist for Balance:\n1.  **Fixed Study Station**: Keep your workspace separated from your sleep space.\n2.  **Nature Exposure**: Add indoor plants like Peace Lilies or Snake Plants around your desk.\n3.  **Stress-free Dining**: Outsource meals to healthy, homely cooks rather than relying on heavy food delivery apps.\n    ",
+      "coverImage": "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop",
+      "category": "Productivity",
+      "tags": [
+        "Remote Work",
+        "Focus",
+        "Design",
+        "Wellness"
+      ],
+      "author": "Siddharth Rao",
+      "published": true,
+      "featured": false,
+      "readingTime": "5 min read",
+      "createdAt": "2026-07-02T09:30:00Z",
+      "updatedAt": "2026-07-02T09:30:00Z",
+      "seo": {
+        "title": "Work From Home Guide: Focus and Well-being | Botanical Living",
+        "description": "Learn how to optimize your environment for focus and mental clarity with our remote work guide."
+      }
+    },
+    {
+      "id": "blog-3",
+      "slug": "why-kondapur-is-best-residential-tech-hub",
+      "title": "Why Kondapur is Hyderabad's Premier Residential Enclave for Tech Talents",
+      "excerpt": "A comprehensive neighborhood guide. Discover the incredible connectivity, green lungs like the Botanical Garden, and high-end lifestyle amenities.",
+      "content": "\n# Why Kondapur is Hyderabad's Premier Residential Hub\n\nIf you are moving to Hyderabad for a role in IT or consulting, choosing the right neighborhood is the most important decision you'll make. Among all tech-adjacent locations, **Kondapur** stands out as the ultimate sweet spot.\n\nHere is why tech professionals, scholars, and consultants prefer Kondapur above other neighborhoods.\n\n## 1. The Green Lung: Botanical Garden\nHitech City and Gachibowli are heavily paved, but Kondapur features the spectacular **Hyderabad Botanical Garden**. This sprawling forest enclave offers miles of walking trails, dense canopy covers, and clean air. Living near Botanical Garden Road means you can wake up to bird calls and start your day with fresh air.\n\n## 2. Proximity to Hyderabad's Tech Corridor\nKondapur shares direct boundaries with Hitech City, Gachibowli, and Madhapur. Commutes to major corporate parks—such as DLF Cyber City, Mindspace, and the financial district—take minutes.\n\n## 3. High-Quality Lifestyle & Gastronomy\nFrom organic produce stores and premium health facilities to independent cafés and co-working hubs, Kondapur offers everything. \n\nAt *Botanical Living*, we selected this exact premium locality to give residents the ultimate combination: a quiet, leafy residential sanctuary that is literally minutes away from the pulsing heart of India's silicon valley.\n    ",
+      "coverImage": "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop",
+      "category": "Locality",
+      "tags": [
+        "Kondapur",
+        "Hyderabad",
+        "Neighborhood",
+        "Botanical Garden"
+      ],
+      "author": "Aditya Rao",
+      "published": true,
+      "featured": false,
+      "readingTime": "3 min read",
+      "createdAt": "2026-07-05T14:15:00Z",
+      "updatedAt": "2026-07-05T14:15:00Z",
+      "seo": {
+        "title": "Kondapur Neighborhood Guide for Tech Professionals | Botanical Living",
+        "description": "Why Kondapur is Hyderabad's top neighborhood. Connectivity, lifestyle, and green enclaves like the Botanical Garden explored."
+      }
+    }
+  ],
+  "gallery": [
+    {
+      "id": "g1",
+      "imageUrl": "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1000&auto=format&fit=crop",
+      "title": "Elegant Living Lounge",
+      "category": "Common Areas",
+      "displayOrder": 1,
+      "type": "image"
+    },
+    {
+      "id": "g2",
+      "imageUrl": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1000&auto=format&fit=crop",
+      "title": "Premium Bathrooms",
+      "category": "Facilities",
+      "displayOrder": 2,
+      "type": "image"
+    },
+    {
+      "id": "g3",
+      "imageUrl": "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?q=80&w=1000&auto=format&fit=crop",
+      "title": "Rooftop Terrace Cafe",
+      "category": "Cafe",
+      "displayOrder": 3,
+      "type": "image"
+    },
+    {
+      "id": "g4",
+      "imageUrl": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=1000&auto=format&fit=crop",
+      "title": "Private Student Suite",
+      "category": "Rooms",
+      "displayOrder": 4,
+      "type": "image"
+    },
+    {
+      "id": "g5",
+      "imageUrl": "https://assets.mixkit.co/videos/preview/mixkit-watering-plants-in-a-greenhouse-41484-large.mp4",
+      "title": "Botanical Courtyard",
+      "category": "Common Areas",
+      "displayOrder": 5,
+      "type": "video"
+    },
+    {
+      "id": "g6",
+      "imageUrl": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1000&auto=format&fit=crop",
+      "title": "Cosy Dual Sharing Beds",
+      "category": "Rooms",
+      "displayOrder": 6,
+      "type": "image"
+    },
+    {
+      "id": "g7",
+      "imageUrl": "https://assets.mixkit.co/videos/preview/mixkit-slow-motion-of-water-droplets-on-leaves-32863-large.mp4",
+      "title": "Greenhouse Gardens",
+      "category": "Common Areas",
+      "displayOrder": 7,
+      "type": "video"
+    },
+    {
+      "id": "g8",
+      "imageUrl": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000&auto=format&fit=crop",
+      "title": "Bespoke Modern Kitchen",
+      "category": "Facilities",
+      "displayOrder": 8,
+      "type": "image"
+    },
+    {
+      "id": "g9",
+      "imageUrl": "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
+      "title": "Botanical Sitting Room",
+      "category": "Common Areas",
+      "displayOrder": 9,
+      "type": "image"
+    },
+    {
+      "id": "g10",
+      "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop",
+      "title": "Fresh Daily Homely Food",
+      "category": "Dining",
+      "displayOrder": 10,
+      "type": "image"
+    },
+    {
+      "id": "g11",
+      "imageUrl": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1200&auto=format&fit=crop",
+      "title": "Premium Lounge & Chill Out",
+      "category": "Common Areas",
+      "displayOrder": 11,
+      "type": "image"
+    },
+    {
+      "id": "g12",
+      "imageUrl": "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1000&auto=format&fit=crop",
+      "title": "Luxury Master Bedroom Suite",
+      "category": "Rooms",
+      "displayOrder": 12,
+      "type": "image"
+    }
+  ],
+  "faq": [
+    {
+      "id": "f1",
+      "category": "Pricing & Booking",
+      "question": "What is the pricing for Single and Two Sharing?",
+      "answer": "Single Sharing is priced at ₹27,000 / month, and Two Sharing is ₹17,000 / head. There are no hidden charges. This price covers everything including high-speed Wi-Fi, laundry, homely food, daily housekeeping, security, and power backup.",
+      "displayOrder": 1
+    },
+    {
+      "id": "f2",
+      "category": "Food & Dining",
+      "question": "What is the food menu and schedule?",
+      "answer": "We serve freshly prepared homely meals three times daily. Non-veg dishes are included 6 days a week, prepared clean by experienced cooks and served inside our modern dining hall.",
+      "displayOrder": 2
+    },
+    {
+      "id": "f3",
+      "category": "Facilities & Services",
+      "question": "How are housekeeping and laundry handled?",
+      "answer": "Housekeeping is done daily by our professional cleaning staff. Free laundry and professional steam ironing facility is provided on-site completely free of charge to residents.",
+      "displayOrder": 3
+    },
+    {
+      "id": "f4",
+      "category": "Location",
+      "question": "What are the location advantages?",
+      "answer": "We are situated in Sri Ram Nagar on Botanical Garden Road in Kondapur, Hyderabad. It is an extremely central yet peaceful residential neighborhood, providing fast access to Hyderabad's premier corporate offices and educational institutes.",
+      "displayOrder": 4
+    },
+    {
+      "id": "f5",
+      "category": "Security & Operations",
+      "question": "How secure is the co-living building?",
+      "answer": "Your safety is our top priority. We provide continuous 24/7 on-site security presence, biometric/smart access entry, and comprehensive CCTV surveillance across all common entrances, passages, and study zones.",
+      "displayOrder": 5
+    },
+    {
+      "id": "f6",
+      "category": "Pricing & Booking",
+      "question": "Is there a security deposit required?",
+      "answer": "Yes, a standard security deposit of one month's rent is payable at check-in. This deposit is fully refundable at check-out upon fulfilling the standard notice period.",
+      "displayOrder": 6
+    }
+  ],
+  "settings": {
+    "general": {
+      "hotelName": "Botanical Living",
+      "tagline": "Premium Co-Living Sanctuary",
+      "primaryEmail": "hello@botanicalliving.in",
+      "phone": "+91 91000 12345",
+      "whatsapp": "+91 91000 12345",
+      "address": "Sri Ram Nagar, Botanical Garden Road, Kondapur, Hyderabad, 500084",
+      "googleMapsEmbed": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.2755254247855!2d78.3582453!3d17.4465432!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93ef423bc2e9%3A0x67db91c0e3a4e98f!2sBotanical%20Garden%20Rd%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+      "googleMapsShare": "https://maps.app.goo.gl/botanicalliving",
+      "virtualTour": "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1920&auto=format&fit=crop",
+      "checkInTime": "12:00 PM",
+      "checkOutTime": "11:00 AM",
+      "businessHours": "9:00 AM - 9:00 PM Daily",
+      "logoUrl": "https://lh3.googleusercontent.com/d/1PCe61WYkM1LeP6Elr490LhVJYzplNTGL",
+      "wordmarkUrl": "",
+      "faviconUrl": "/favicon.ico",
+      "heroVideoUrl": "https://assets.mixkit.co/videos/preview/mixkit-holding-a-small-cactus-plant-41470-large.mp4",
+      "socialShareImage": "",
+      "instagram": "https://instagram.com/botanical.living",
+      "facebook": "https://facebook.com/botanical.living",
+      "linkedin": "https://linkedin.com/company/botanical-living",
+      "youtube": "https://youtube.com/c/botanicalliving",
+      "twitter": "https://twitter.com/botanical_living",
+      "seoTitle": "Botanical Living - Premium Eco-Luxury Co-Living in Kondapur, Hyderabad",
+      "seoDescription": "Fully serviced luxury rooms with daily cleaning, in-house laundry, delicious homely food, 24/7 security, high-speed Wi-Fi, and a rooftop study cafe.",
+      "seoKeywords": "co-living Hyderabad, premium hostel Kondapur, serviced rooms Hitech city, luxury co-living Hyderabad",
+      "ogImage": "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
+      "canonicalUrl": "https://botanicalliving.in"
+    }
+  },
+  "homepage": {
+    "config": {
+      "heroVideoUrl": "https://assets.mixkit.co/videos/preview/mixkit-holding-a-small-cactus-plant-41470-large.mp4",
+      "heroTitle": "A Premium Botanical Sanctuary for Mindful Living",
+      "heroSubtitle": "Where organic luxury meets flawless convenience in Kondapur, Hyderabad. Uncover spaces crafted for deep focus, rich community, and restorative peace.",
+      "heroPrimaryBtnText": "Secure Your Suite",
+      "heroSecondaryBtnText": "Experience Virtual Tour",
+      "storyTitle": "The Botanical Living Story",
+      "storySubtitle": "A Refined Living Experience Rooted in Biophilia",
+      "storyParagraph1": "We believe that our living environment directly influences our productivity, focus, and personal peace. Created as an antidote to dull, uninspired hostels and traditional chaotic rental spaces, Botanical Living merges natural wooden warmth, abundant organic houseplants, and modern minimalist architecture.",
+      "storyParagraph2": "Every detail is curated to nurture professional drive and spiritual balance. We take full responsibility for daily chores, meals, and laundry, freeing up your energy to focus on what matters most to your journey.",
+      "storyImageUrl": "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop",
+      "diningTitle": "Organic & Homely Gastronomy",
+      "diningSubtitle": "Nourishing, Freshly Prepared Meals Served Daily",
+      "diningDescription": "Outsource your meal planning entirely. We serve wholesome, hygienic, freshly prepared meals in-house, balancing nutritious recipes and local flavors. Enjoy 6 days of delicious premium non-veg delicacies weekly in our spacious, sunlit communal dining room.",
+      "diningImageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop",
+      "diningHighlights": [
+        "Freshly Prepared Homely Meals Daily",
+        "Nutritionally Balanced Diet Plans",
+        "6 Days Premium Non-Veg Dishes Weekly",
+        "Hygienic Communal Dining Room"
+      ],
+      "locationTitle": "An Oasis in India’s Silicon Valley",
+      "locationSubtitle": "Unmatched Connectivity and Serene Surrounding Gardens",
+      "locationAddress": "Sri Ram Nagar, Botanical Garden Road, Kondapur, Hyderabad, Telangana, 500084",
+      "locationMapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.2755254247855!2d78.3582453!3d17.4465432!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb93ef423bc2e9%3A0x67db91c0e3a4e98f!2sBotanical%20Garden%20Rd%2C%20Hyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+      "tourTitle": "Unveil Your Future Home",
+      "tourSubtitle": "Take a High-Definition Virtual Journey Through Botanical Living",
+      "tourVideoUrl": "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1920&auto=format&fit=crop",
+      "ctaTitle": "Ready to Experience Botanical Living?",
+      "ctaSubtitle": "Limited premium suites available. Submit a booking query to schedule a private walkthrough and secure your space today.",
+      "ctaButtonText": "Submit Booking Enquiry"
+    }
+  }
+}
