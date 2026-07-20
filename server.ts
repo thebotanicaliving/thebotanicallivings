@@ -417,6 +417,12 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    
+    // Explicitly serve index.html for any admin paths first to bypass directory lookup or trailing slash conflicts
+    app.get(["/admin", "/admin/*"], (req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));

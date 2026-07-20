@@ -209,12 +209,12 @@ export default function App() {
       {/* Client-side Router views */}
       <RouterRoutes>
         <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminLayout />
           </ProtectedRoute>
         }>
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="rooms" element={<RoomsList />} />
           <Route path="rooms/new" element={<RoomForm />} />
