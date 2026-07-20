@@ -57,12 +57,18 @@ export function FAQ() {
         <ScrollReveal variant="slideUp" delay={0.3} className="mt-12 text-center">
           <Paragraph size="sm" className="text-text-secondary">
             {"Still have questions? "}
-            <a 
-              href="#final-cta" 
-              className="text-gold-accent font-semibold hover:underline decoration-gold-accent/30 underline-offset-4"
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                const target = document.getElementById('final-cta');
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="text-gold-accent font-semibold hover:underline decoration-gold-accent/30 underline-offset-4 bg-transparent border-none p-0 cursor-pointer"
             >
               {"Contact our concierge service"}
-            </a>
+            </button>
           </Paragraph>
         </ScrollReveal>
       </Container>

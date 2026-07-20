@@ -214,7 +214,7 @@ export default function App() {
             <AdminLayout />
           </ProtectedRoute>
         }>
-          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="rooms" element={<RoomsList />} />
           <Route path="rooms/new" element={<RoomForm />} />
