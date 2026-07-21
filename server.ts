@@ -44,7 +44,7 @@ if (getApps().length === 0) {
 }
 const db = getFirestore(clientApp);
 
-// Initialize Razorpay lazily to avoid crashing on startup if keys are missing
+// Initialize Razorpay dynamically to ensure latest environment variables are always used
 function getRazorpayKeyId(): string {
   return (process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "").trim();
 }
@@ -53,19 +53,15 @@ function getRazorpayKeySecret(): string {
   return (process.env.RAZORPAY_KEY_SECRET || "").trim();
 }
 
-let razorpayInstance: Razorpay | null = null;
 function getRazorpay(): Razorpay {
-  if (!razorpayInstance) {
-    const keyId = getRazorpayKeyId();
-    const keySecret = getRazorpayKeySecret();
-    
-    // Use fallbacks to prevent crashing at initialization if environment variables are missing
-    razorpayInstance = new Razorpay({
-      key_id: keyId || "rzp_test_placeholder",
-      key_secret: keySecret || "placeholder_secret",
-    });
-  }
-  return razorpayInstance;
+  const keyId = getRazorpayKeyId();
+  const keySecret = getRazorpayKeySecret();
+  
+  // Create a fresh instance using latest environment variables
+  return new Razorpay({
+    key_id: keyId || "rzp_test_placeholder",
+    key_secret: keySecret || "placeholder_secret",
+  });
 }
 
 // Helper: Securely retrieve pricing rules from Firestore using client SDK

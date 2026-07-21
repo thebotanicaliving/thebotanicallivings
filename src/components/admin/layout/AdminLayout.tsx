@@ -28,6 +28,23 @@ export function AdminLayout() {
   const location = useLocation();
   const { settings } = useSettings();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  // Set page title and meta tags
+  useEffect(() => {
+    document.title = 'Admin | Botanical Living';
+    
+    // Manage SEO meta tags
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Botanical Living - High-End Hospitality & Luxury Stays Administrative Portal.');
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'description';
+      meta.content = 'Botanical Living - High-End Hospitality & Luxury Stays Administrative Portal.';
+      document.head.appendChild(meta);
+    }
+  }, []);
 
   // Close sidebar on navigation changes
   useEffect(() => {
@@ -41,6 +58,42 @@ export function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-stone-50 overflow-x-hidden">
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-fadeIn" onClick={() => setShowLogoutConfirm(false)} />
+          <div className="bg-white rounded-[24px] max-w-sm w-full p-6 md:p-8 border border-border/30 shadow-2xl relative z-10 animate-scaleUp">
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 rounded-full bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto">
+                <LogOut size={22} />
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="font-heading text-lg font-medium text-dark-forest">Confirm Sign Out</h3>
+                <p className="text-xs text-text-secondary leading-relaxed font-light">
+                  Are you sure you want to sign out of the Botanical Living admin console? You will need to log back in to manage properties, rates, and bookings.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="w-full text-xs font-semibold py-2.5 rounded-xl border-border/40 text-text-primary"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="primary" 
+                  onClick={handleLogout}
+                  className="w-full text-xs font-semibold py-2.5 rounded-xl bg-rose-600 border-rose-600 hover:bg-rose-700 hover:border-rose-700 text-white"
+                >
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Backdrop overlay */}
       {isSidebarOpen && (
         <div 
@@ -103,7 +156,7 @@ export function AdminLayout() {
         <div className="p-4 border-t border-forest/50">
           <button 
             className="w-full flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors text-white/80 hover:bg-red-500/20 hover:text-red-300 outline-none" 
-            onClick={handleLogout}
+            onClick={() => setShowLogoutConfirm(true)}
           >
             <LogOut className="mr-3" size={20} />
             Logout

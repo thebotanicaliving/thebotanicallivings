@@ -52,6 +52,7 @@ export interface Room {
   coverImage: string;
   gallery: string[];
   totalRooms?: number;
+  physicalRooms?: { number: string; floor: string }[];
   
   // Phase 2 legacy fields
   occupancy: number | string;

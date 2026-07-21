@@ -40,9 +40,63 @@ export function BookingPage() {
   const [checkInDate, setCheckInDate] = useState(getTomorrowString());
   const [checkOutDate, setCheckOutDate] = useState(getThreeDaysLaterString());
   const [adultsCount, setAdultsCount] = useState(1);
-  const [childrenCount, setChildrenCount] = useState(0);
+  const [childrenCount] = useState(0); // Lock children count to 0 per business logic update
   const [selectedFoodIds, setSelectedFoodIds] = useState<string[]>([]);
   
+  const [selectedRoomNumber, setSelectedRoomNumber] = useState('');
+  const [selectedFloor, setSelectedFloor] = useState('');
+  const [existingBookings, setExistingBookings] = useState<any[]>([]);
+
+  const getRoomMaxCapacity = (room: any) => {
+    if (!room) return 2;
+    const title = (room.title || '').toLowerCase();
+    if (title.includes('single')) {
+      return 1;
+    }
+    return 2;
+  };
+
+  const getPhysicalRoomsForRoom = (room: any) => {
+    if (!room) return [];
+    if (room.physicalRooms && Array.isArray(room.physicalRooms) && room.physicalRooms.length > 0) {
+      return room.physicalRooms;
+    }
+    const idStr = String(room.id || room.slug || '').toLowerCase();
+    const titleStr = String(room.title || '').toLowerCase();
+    
+    if (idStr.includes('single') || titleStr.includes('single')) {
+      return [
+        { number: '101', floor: '1st Floor' },
+        { number: '102', floor: '1st Floor' },
+        { number: '201', floor: '2nd Floor' },
+        { number: '202', floor: '2nd Floor' },
+        { number: '301', floor: '3rd Floor' },
+        { number: '302', floor: '3rd Floor' }
+      ];
+    } else {
+      return [
+        { number: '103', floor: '1st Floor' },
+        { number: '104', floor: '1st Floor' },
+        { number: '203', floor: '2nd Floor' },
+        { number: '204', floor: '2nd Floor' },
+        { number: '303', floor: '3rd Floor' },
+        { number: '304', floor: '3rd Floor' }
+      ];
+    }
+  };
+
+  const isOverlapping = (bIn: string, bOut: string, selIn: string, selOut: string) => {
+    if (!bIn || !bOut || !selIn || !selOut) return false;
+    return bIn < selOut && bOut > selIn;
+  };
+
+  const getBookedRoomNumbers = (roomId: string) => {
+    return existingBookings
+      .filter(b => b.roomId === roomId && b.status !== 'cancelled' && b.status !== 'rejected' && b.status !== 'refunded' && isOverlapping(b.checkInDate, b.checkOutDate, checkInDate, checkOutDate))
+      .map(b => b.roomNumber)
+      .filter(Boolean);
+  };
+
   const [availableRooms, setAvailableRooms] = useState<any[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState('');
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
@@ -94,11 +148,33 @@ export function BookingPage() {
     document.body.appendChild(script);
   }, []);
 
-  // Sync selected room details
+  // Fetch previous bookings for active stay window conflict tracking
+  useEffect(() => {
+    const fetchExistingBookings = async () => {
+      if (!db) return;
+      try {
+        const snap = await getDocs(collection(db, 'bookingRequests'));
+        const list: any[] = [];
+        snap.forEach(docSnap => {
+          list.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        setExistingBookings(list);
+      } catch (err) {
+        console.warn('Error fetching existing bookings for room allocation', err);
+      }
+    };
+    fetchExistingBookings();
+  }, [checkInDate, checkOutDate]);
+
+  // Sync selected room details and reset physical allocation parameters on room change
   useEffect(() => {
     if (selectedRoomId && rooms.length > 0) {
       const room = rooms.find(r => r.id === selectedRoomId);
-      if (room) setSelectedRoom(room);
+      if (room) {
+        setSelectedRoom(room);
+        setSelectedRoomNumber('');
+        setSelectedFloor('');
+      }
     }
   }, [selectedRoomId, rooms]);
 
@@ -169,9 +245,9 @@ export function BookingPage() {
     if (!room) return;
 
     // Check capacity
-    const maxCap = Number(room.maxCapacity || room.occupancy || 2);
-    if (adultsCount + childrenCount > maxCap) {
-      alert(`This room accommodates a maximum of ${maxCap} guests. Please reduce guest count.`);
+    const maxCap = getRoomMaxCapacity(room);
+    if (adultsCount > maxCap) {
+      alert(`This room accommodates a maximum of ${maxCap} guest(s). Please reduce your guest count on Step 1.`);
       return;
     }
 
@@ -181,9 +257,9 @@ export function BookingPage() {
         roomId,
         checkInDate,
         checkOutDate,
-        adultsCount + childrenCount,
         adultsCount,
-        childrenCount,
+        adultsCount,
+        0,
         selectedFoodIds
       );
       setPriceDetails(calc);
@@ -203,6 +279,10 @@ export function BookingPage() {
       alert('Please fill out all required fields.');
       return;
     }
+    if (!selectedRoomNumber) {
+      alert('Please select an available floor & room number before proceeding.');
+      return;
+    }
     setStep(3); // Direct to Summary
   };
 
@@ -213,9 +293,9 @@ export function BookingPage() {
         selectedRoomId,
         checkInDate,
         checkOutDate,
-        adultsCount + childrenCount,
         adultsCount,
-        childrenCount,
+        adultsCount,
+        0,
         foodIds
       );
       setPriceDetails(calc);
@@ -292,9 +372,9 @@ export function BookingPage() {
           checkInDate,
           checkOutDate,
           numberOfNights: priceDetails.nights,
-          guestsCount: adultsCount + childrenCount,
+          guestsCount: adultsCount,
           adultsCount,
-          childrenCount,
+          childrenCount: 0,
           firstName: guestInfo.firstName,
           lastName: guestInfo.lastName,
           phone: guestInfo.phone,
@@ -306,6 +386,8 @@ export function BookingPage() {
           selectedFoodOptions: selectedFoodIds,
           foodAmount: priceDetails.foodAmount,
           advanceAmount: priceDetails.advanceAmount, // Used for backend validation assertion
+          roomNumber: selectedRoomNumber,
+          floor: selectedFloor,
         };
 
         // 2. Open Razorpay Standard Checkout modal with the returned order_id
@@ -403,9 +485,9 @@ export function BookingPage() {
         checkInDate,
         checkOutDate,
         numberOfNights: priceDetails.nights,
-        guestsCount: adultsCount + childrenCount,
+        guestsCount: adultsCount,
         adultsCount,
-        childrenCount,
+        childrenCount: 0,
         firstName: guestInfo.firstName,
         lastName: guestInfo.lastName,
         phone: guestInfo.phone,
@@ -417,6 +499,8 @@ export function BookingPage() {
         selectedFoodOptions: selectedFoodIds,
         foodAmount: priceDetails.foodAmount,
         advanceAmount: priceDetails.advanceAmount,
+        roomNumber: selectedRoomNumber,
+        floor: selectedFloor,
       };
 
       const demoResponse = await fetch('/api/create-booking-demo', {
@@ -518,39 +602,25 @@ export function BookingPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                    <div className="grid grid-cols-1 gap-6 pt-2">
                       <div className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-wider font-semibold text-text-secondary font-button">Adults Count (Age 12+)</label>
-                        <div className="flex items-center justify-between border border-border/30 rounded-xl p-2 bg-stone-50/50">
+                        <label className="text-[10px] uppercase tracking-wider font-semibold text-text-secondary font-button">Number of Guests</label>
+                        <div className="flex items-center justify-between border border-border/30 rounded-xl p-2 bg-stone-50/50 max-w-sm">
                           <button
                             type="button"
                             onClick={() => setAdultsCount(p => Math.max(1, p - 1))}
                             className="w-10 h-10 rounded-lg border border-border/40 hover:bg-stone-100 flex items-center justify-center text-sm font-bold"
                           >-</button>
-                          <span className="font-heading font-medium text-dark-forest">{adultsCount}</span>
+                          <span className="font-heading font-medium text-dark-forest">{adultsCount} Guest{adultsCount > 1 ? 's' : ''}</span>
                           <button
                             type="button"
-                            onClick={() => setAdultsCount(p => Math.min(8, p + 1))}
+                            onClick={() => setAdultsCount(p => Math.min(2, p + 1))}
                             className="w-10 h-10 rounded-lg border border-border/40 hover:bg-stone-100 flex items-center justify-center text-sm font-bold"
                           >+</button>
                         </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] uppercase tracking-wider font-semibold text-text-secondary font-button">Children Count (Age 2-12)</label>
-                        <div className="flex items-center justify-between border border-border/30 rounded-xl p-2 bg-stone-50/50">
-                          <button
-                            type="button"
-                            onClick={() => setChildrenCount(p => Math.max(0, p - 1))}
-                            className="w-10 h-10 rounded-lg border border-border/40 hover:bg-stone-100 flex items-center justify-center text-sm font-bold"
-                          >-</button>
-                          <span className="font-heading font-medium text-dark-forest">{childrenCount}</span>
-                          <button
-                            type="button"
-                            onClick={() => setChildrenCount(p => Math.min(6, p + 1))}
-                            className="w-10 h-10 rounded-lg border border-border/40 hover:bg-stone-100 flex items-center justify-center text-sm font-bold"
-                          >+</button>
-                        </div>
+                        <p className="text-[11px] text-text-secondary italic">
+                          Maximum capacity is 1 guest for Single sharing suites, and 2 guests for Double sharing suites.
+                        </p>
                       </div>
                     </div>
 
@@ -584,7 +654,8 @@ export function BookingPage() {
                         <div className="space-y-4 pt-2">
                           {availableRooms.map((room) => {
                             const price = room.pricingRules?.basePrice || 4500;
-                            const isMaxCapExceeded = (adultsCount + childrenCount) > (Number(room.maxCapacity || room.occupancy || 2));
+                            const maxCap = getRoomMaxCapacity(room);
+                            const isMaxCapExceeded = adultsCount > maxCap;
                             
                             return (
                               <div 
@@ -601,12 +672,12 @@ export function BookingPage() {
                                   <p className="text-xs text-text-secondary line-clamp-1">{room.description}</p>
                                   
                                   <div className="flex flex-wrap gap-2 text-[10px] text-stone-500 pt-1 font-mono">
-                                    <span>Max capacity: {room.maxCapacity || room.occupancy || 2} Guests</span>
+                                    <span>Max capacity: {maxCap} Guest{maxCap > 1 ? 's' : ''}</span>
                                     <span>•</span>
                                     <span>Remaining suites: {room.available ? room.remainingRooms : 0} of {room.totalRooms}</span>
                                   </div>
 
-                                  {Number(room.maxCapacity || 2) === 2 && Number(room.currentResidents || 0) > 0 && (
+                                  {maxCap === 2 && Number(room.currentResidents || 0) > 0 && (
                                     <div className="text-[10.5px] text-amber-800 bg-amber-50/70 border border-amber-100/60 rounded-lg px-2.5 py-1 mt-2 inline-flex items-center gap-1.5 font-medium font-sans">
                                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                                       Double Sharing: 1 occupant currently resident. Second sharing bed open & ready for booking!
@@ -754,6 +825,89 @@ export function BookingPage() {
                     <p className="text-[11px] text-stone-500 font-sans italic mt-1">
                       * Your Aadhaar Card details will be securely verified in-person during check-in.
                     </p>
+
+                    {/* Floor and Room Number Selection Grid */}
+                    <div className="space-y-4 pt-6 border-t border-border/20">
+                      <div>
+                        <h4 className="text-sm font-medium text-dark-forest font-button">Select Floor & Room Number</h4>
+                        <p className="text-xs text-text-secondary mt-0.5">Pick from our available premium rooms for your stay duration based on active inventory.</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Floor Selection */}
+                        <div className="space-y-2">
+                          <label className="text-[10px] uppercase tracking-wider font-semibold text-text-secondary font-button">Floor</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {['1st Floor', '2nd Floor', '3rd Floor'].map(floor => {
+                              const roomsOnFloor = getPhysicalRoomsForRoom(selectedRoom).filter(r => r.floor === floor);
+                              const bookedRooms = getBookedRoomNumbers(selectedRoomId);
+                              const availableOnFloor = roomsOnFloor.filter(r => !bookedRooms.includes(r.number));
+                              const isAllBooked = availableOnFloor.length === 0;
+
+                              const isSel = selectedFloor === floor;
+                              return (
+                                <button
+                                  key={floor}
+                                  type="button"
+                                  disabled={isAllBooked}
+                                  onClick={() => {
+                                    setSelectedFloor(floor);
+                                    setSelectedRoomNumber(''); // reset room number when floor changes
+                                  }}
+                                  className={`py-3 px-2 text-xs rounded-xl border text-center transition-all ${
+                                    isAllBooked
+                                      ? 'bg-stone-100 text-stone-300 border-stone-200 cursor-not-allowed'
+                                      : isSel
+                                      ? 'border-gold-accent bg-gold-accent/5 ring-1 ring-gold-accent text-dark-forest font-semibold'
+                                      : 'border-border/40 hover:border-gold-accent/40 text-text-secondary'
+                                  }`}
+                                >
+                                  {floor}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Room Number Selection */}
+                        <div className="space-y-2">
+                          <label className="text-[10px] uppercase tracking-wider font-semibold text-text-secondary font-button">Room Number</label>
+                          {selectedFloor ? (
+                            <div className="grid grid-cols-2 gap-2">
+                              {getPhysicalRoomsForRoom(selectedRoom)
+                                .filter(r => r.floor === selectedFloor)
+                                .map(r => {
+                                  const bookedRooms = getBookedRoomNumbers(selectedRoomId);
+                                  const isBooked = bookedRooms.includes(r.number);
+                                  const isSel = selectedRoomNumber === r.number;
+
+                                  return (
+                                    <button
+                                      key={r.number}
+                                      type="button"
+                                      disabled={isBooked}
+                                      onClick={() => setSelectedRoomNumber(r.number)}
+                                      className={`py-3 px-2 text-xs rounded-xl border text-center transition-all ${
+                                        isBooked
+                                          ? 'bg-red-50 text-red-300 border-red-100 cursor-not-allowed line-through'
+                                          : isSel
+                                          ? 'border-gold-accent bg-gold-accent/5 ring-1 ring-gold-accent text-dark-forest font-semibold'
+                                          : 'border-border/40 hover:border-gold-accent/40 text-text-secondary'
+                                      }`}
+                                    >
+                                      Room {r.number} {isBooked ? '(Booked)' : '(Available)'}
+                                    </button>
+                                  );
+                                })}
+                            </div>
+                          ) : (
+                            <div className="p-3 border border-dashed border-border/40 rounded-xl text-xs text-stone-400 text-center">
+                              Please select a floor first
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
                     {/* Food Subscription Preferences - Portrayed beautifully here in Guest credentials section */}
                     <div className="space-y-4 pt-4 border-t border-border/20">
@@ -1101,6 +1255,12 @@ export function BookingPage() {
                         <span className="text-text-secondary">Suite category</span>
                         <span className="font-semibold text-dark-forest">{confirmedBooking.roomTitle}</span>
                       </div>
+                      {confirmedBooking.roomNumber && (
+                        <div className="flex justify-between border-b border-border/10 pb-2">
+                          <span className="text-text-secondary">Assigned Suite</span>
+                          <span className="font-semibold text-gold-accent">{confirmedBooking.floor} - Room {confirmedBooking.roomNumber}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between border-b border-border/10 pb-2">
                         <span className="text-text-secondary">Scheduled Date</span>
                         <span className="font-semibold text-dark-forest">{new Date(confirmedBooking.checkInDate).toLocaleDateString()}</span>
@@ -1173,8 +1333,14 @@ export function BookingPage() {
                         )}
                         <div className="flex justify-between text-xs">
                           <span className="text-text-secondary">Guests</span>
-                          <span className="font-semibold text-dark-forest">{adultsCount} Adult(s) {childrenCount > 0 ? `, ${childrenCount} Child(ren)` : ''}</span>
+                          <span className="font-semibold text-dark-forest">{adultsCount} Guest{adultsCount > 1 ? 's' : ''}</span>
                         </div>
+                        {selectedRoomNumber && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-text-secondary">Assigned Suite</span>
+                            <span className="font-semibold text-gold-accent">{selectedFloor} - Room {selectedRoomNumber}</span>
+                          </div>
+                        )}
                       </div>
 
                       {priceDetails && (

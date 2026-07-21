@@ -217,11 +217,11 @@ export function BlogDetailsPage() {
                           return (
                             <div key={section.id || idx} className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8 animate-fadeIn">
                               <div className="space-y-2 group">
-                                <div className="overflow-hidden rounded-2xl border border-stone-100 shadow-sm">
+                                <div className="overflow-hidden rounded-2xl border border-stone-100 shadow-sm bg-white">
                                   <img 
                                     src={section.imageUrl} 
                                     alt={section.imageCaption || ''} 
-                                    className="section-img w-full object-cover max-h-[350px] hover:scale-[1.02] transition-transform duration-500" 
+                                    className="section-img w-full h-auto block hover:scale-[1.02] transition-transform duration-500" 
                                     referrerPolicy="no-referrer"
                                   />
                                 </div>
@@ -232,11 +232,11 @@ export function BlogDetailsPage() {
                                 )}
                               </div>
                               <div className="space-y-2 group">
-                                <div className="overflow-hidden rounded-2xl border border-stone-100 shadow-sm">
+                                <div className="overflow-hidden rounded-2xl border border-stone-100 shadow-sm bg-white">
                                   <img 
                                     src={section.imageUrlSecond} 
                                     alt={section.imageCaptionSecond || ''} 
-                                    className="section-img w-full object-cover max-h-[350px] hover:scale-[1.02] transition-transform duration-500" 
+                                    className="section-img w-full h-auto block hover:scale-[1.02] transition-transform duration-500" 
                                     referrerPolicy="no-referrer"
                                   />
                                 </div>
@@ -252,11 +252,11 @@ export function BlogDetailsPage() {
 
                         return (
                           <div key={section.id || idx} className="space-y-2.5 my-8 group animate-fadeIn">
-                            <div className="overflow-hidden rounded-[20px] border border-stone-200/45 shadow-md">
+                            <div className="overflow-hidden rounded-[20px] border border-stone-200/45 shadow-md bg-white">
                               <img 
                                 src={section.imageUrl} 
                                 alt={section.imageCaption || ''} 
-                                className="section-img w-full object-cover max-h-[500px] hover:scale-[1.01] transition-transform duration-700" 
+                                className="section-img w-full h-auto block hover:scale-[1.01] transition-transform duration-700" 
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -277,11 +277,11 @@ export function BlogDetailsPage() {
                             className={`flex flex-col ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 md:gap-10 my-10 items-center animate-fadeIn`}
                           >
                             <div className="w-full md:w-1/2 space-y-2.5 group">
-                              <div className="overflow-hidden rounded-[20px] border border-stone-100 shadow-md">
+                              <div className="overflow-hidden rounded-[20px] border border-stone-100 shadow-md bg-white">
                                 <img 
                                   src={section.imageUrl} 
                                   alt={section.imageCaption || ''} 
-                                  className="section-img w-full object-cover max-h-[400px] hover:scale-[1.02] transition-transform duration-500" 
+                                  className="section-img w-full h-auto block hover:scale-[1.02] transition-transform duration-500" 
                                   referrerPolicy="no-referrer"
                                 />
                               </div>

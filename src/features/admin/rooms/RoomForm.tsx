@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { roomService } from '@/services/room.service';
 import { availabilityService } from '@/services/availability.service';
+import { bookingService } from '@/services/booking.service';
 import { Button } from '@/components/shared';
 import { Save, ArrowLeft, Plus, Trash2, GripVertical, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
@@ -28,6 +29,7 @@ export function RoomForm() {
   
   const [formData, setFormData] = useState<Partial<Room>>(defaultFormState);
   const [originalRoom, setOriginalRoom] = useState<Partial<Room> | null>(null);
+  const [originalPricingRules, setOriginalPricingRules] = useState<any>(null);
   
   const [pricingRules, setPricingRules] = useState<any>({
     basePrice: 4500,
@@ -49,18 +51,67 @@ export function RoomForm() {
   // Gallery Drag and Drop state
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
+  // Live occupancy and physical suites states
+  const [physicalRooms, setPhysicalRooms] = useState<{ number: string; floor: string }[]>([]);
+  const [activeBookings, setActiveBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+
+  const getPhysicalRoomsForRoom = (room: any) => {
+    if (!room) return [];
+    const idStr = String(room.id || room.slug || '').toLowerCase();
+    const titleStr = String(room.title || '').toLowerCase();
+    
+    if (idStr.includes('single') || titleStr.includes('single')) {
+      return [
+        { number: '101', floor: '1st Floor' },
+        { number: '102', floor: '1st Floor' },
+        { number: '201', floor: '2nd Floor' },
+        { number: '202', floor: '2nd Floor' },
+        { number: '301', floor: '3rd Floor' },
+        { number: '302', floor: '3rd Floor' }
+      ];
+    } else {
+      return [
+        { number: '103', floor: '1st Floor' },
+        { number: '104', floor: '1st Floor' },
+        { number: '203', floor: '2nd Floor' },
+        { number: '204', floor: '2nd Floor' },
+        { number: '303', floor: '3rd Floor' },
+        { number: '304', floor: '3rd Floor' }
+      ];
+    }
+  };
+
   useEffect(() => {
     if (isEdit && id) {
+      setLoadingBookings(true);
+      bookingService.getBookingRequests().then(requests => {
+        const active = requests.filter(b => 
+          b.roomId === id && 
+          (b.status === 'confirmed' || b.status === 'checked_in')
+        );
+        setActiveBookings(active);
+        setLoadingBookings(false);
+      }).catch(err => {
+        console.error('Error fetching bookings for occupancy', err);
+        setLoadingBookings(false);
+      });
+
       roomService.getRoom(id).then(room => {
         if (room) {
           const formatted = { ...defaultFormState, ...room };
           setFormData(formatted);
           setOriginalRoom(formatted);
+          if (room.physicalRooms && Array.isArray(room.physicalRooms)) {
+            setPhysicalRooms(room.physicalRooms);
+          } else {
+            setPhysicalRooms(getPhysicalRoomsForRoom(room));
+          }
         }
       });
       availabilityService.getPricingRules(id).then(rules => {
         if (rules) {
-          setPricingRules({
+          const rulesObj = {
             basePrice: rules.basePrice ?? 4500,
             weekendPrice: rules.weekendPrice ?? 5500,
             extraAdultPrice: rules.extraAdultPrice ?? 1500,
@@ -75,15 +126,42 @@ export function RoomForm() {
             maximumStay: rules.maximumStay ?? 30,
             cancellationWindow: rules.cancellationWindow ?? 24,
             refundRules: rules.refundRules ?? 'Cancel before 24 hours of check-in for a full refund.'
-          });
+          };
+          setPricingRules(rulesObj);
+          setOriginalPricingRules(rulesObj);
         }
       });
     } else {
       setOriginalRoom(defaultFormState);
+      setPhysicalRooms([]);
+      const defaultRules = {
+        basePrice: 4500,
+        weekendPrice: 5500,
+        extraAdultPrice: 1500,
+        extraChildPrice: 750,
+        discountPercent: 0,
+        taxesPercent: 12,
+        cleaningFee: 500,
+        platformFee: 200,
+        securityDeposit: 3000,
+        advancePercent: 50,
+        minimumStay: 1,
+        maximumStay: 30,
+        cancellationWindow: 24,
+        refundRules: 'Cancel before 24 hours of check-in for a full refund.'
+      };
+      setPricingRules(defaultRules);
+      setOriginalPricingRules(defaultRules);
     }
   }, [id, isEdit]);
 
-  const isDirty = !isEdit || (originalRoom && formData ? Object.keys(originalRoom).some(key => {
+  const isPricingRulesDirty = originalPricingRules && pricingRules ? Object.keys(originalPricingRules).some(key => {
+    const orig = originalPricingRules[key] === undefined || originalPricingRules[key] === null ? '' : String(originalPricingRules[key]).trim();
+    const curr = pricingRules[key] === undefined || pricingRules[key] === null ? '' : String(pricingRules[key]).trim();
+    return orig !== curr;
+  }) : false;
+
+  const isRoomFormDirty = originalRoom && formData ? Object.keys(originalRoom).some(key => {
     const k = key as keyof Room;
     if (k === 'gallery') {
       const origGallery = originalRoom.gallery || [];
@@ -96,7 +174,10 @@ export function RoomForm() {
     const orig = originalRoom[k] === undefined || originalRoom[k] === null ? '' : String(originalRoom[k]).trim();
     const curr = formData[k] === undefined || formData[k] === null ? '' : String(formData[k]).trim();
     return orig !== curr;
-  }) : false);
+  }) : false;
+
+  const isPhysicalRoomsDirty = JSON.stringify(originalRoom?.physicalRooms || []) !== JSON.stringify(physicalRooms);
+  const isDirty = !isEdit || isRoomFormDirty || isPricingRulesDirty || isPhysicalRoomsDirty;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -174,26 +255,48 @@ export function RoomForm() {
     
     setIsSaving(true);
     try {
-      // Filter out empty gallery urls
+      const validPhysicalRooms = physicalRooms.filter(r => r.number.trim() !== '');
+      // Filter out empty gallery urls and attach physicalRooms
       const cleanedData = {
         ...formData,
+        physicalRooms: validPhysicalRooms,
+        totalRooms: validPhysicalRooms.length || 5,
         gallery: (formData.gallery || []).filter(url => url.trim() !== '')
+      };
+
+      // Set clean simplified pricing rules
+      const cleanedPricingRules = {
+        ...pricingRules,
+        basePrice: Number(pricingRules.basePrice) || Number(formData.price) || 4500,
+        weekendPrice: 0,
+        extraAdultPrice: 0,
+        extraChildPrice: 0,
+        discountPercent: 0,
+        taxesPercent: 0,
+        cleaningFee: 0,
+        platformFee: 0,
+        securityDeposit: 0,
+        advancePercent: Number(pricingRules.advancePercent) || 50,
+        minimumStay: Number(pricingRules.minimumStay) || 1,
+        maximumStay: Number(pricingRules.maximumStay) || 30,
+        cancellationWindow: Number(pricingRules.cancellationWindow) || 24,
+        refundRules: pricingRules.refundRules || 'Cancel before 24 hours of check-in for a full refund.'
       };
       
       if (isEdit && id) {
         await roomService.updateRoom(id, cleanedData);
         await availabilityService.savePricingRules({
-          ...pricingRules,
+          ...cleanedPricingRules,
           roomId: id
         });
-        showToast('Room updated', 'success');
+        showToast('Room updated successfully', 'success');
       } else {
         const newRoomId = await roomService.createRoom(cleanedData as Omit<Room, 'id'>);
         await availabilityService.savePricingRules({
-          ...pricingRules,
+          ...cleanedPricingRules,
           roomId: newRoomId
         });
-        showToast('Room created', 'success');
+        showToast('Room created successfully', 'success');
       }
       navigate('/admin/rooms');
     } catch (error) {
@@ -275,50 +378,128 @@ export function RoomForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Total Physical Rooms *</label>
-                <input type="number" name="totalRooms" value={formData.totalRooms || 5} onChange={handleChange} className="w-full p-2 border rounded" min="1" required />
+                <input type="number" name="totalRooms" value={physicalRooms.length} className="w-full p-2 border rounded bg-stone-50 font-semibold text-dark-forest" readOnly disabled />
+                <span className="text-[11px] text-stone-500">Managed dynamically via the physical suites section below.</span>
               </div>
             </div>
           </div>
 
+          {/* Physical Suites Allocation & Live Occupancy */}
+          <div className="bg-white p-6 rounded-card shadow space-y-4 border border-stone-100">
+            <div className="flex justify-between items-center border-b pb-2">
+              <div>
+                <h3 className="font-bold text-dark-forest font-heading text-lg">Physical Suites & Live Occupancy</h3>
+                <p className="text-xs text-stone-500 mt-0.5">Assign room numbers, floors, and track real-time resident occupancy.</p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setPhysicalRooms(prev => [...prev, { number: '', floor: '1st Floor' }])}
+              >
+                <Plus size={16} className="mr-1" /> Add Suite
+              </Button>
+            </div>
+
+            {loadingBookings ? (
+              <div className="text-center py-4 text-xs font-mono text-stone-400">Loading live occupancy...</div>
+            ) : (
+              <div className="space-y-3">
+                {physicalRooms.map((room, idx) => {
+                  const checkedIn = activeBookings.find(b => b.roomNumber === room.number && b.status === 'checked_in');
+                  const reserved = activeBookings.find(b => b.roomNumber === room.number && b.status === 'confirmed');
+                  const isOccupied = !!checkedIn;
+                  const isReserved = !!reserved;
+
+                  return (
+                    <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-stone-50/60 border border-stone-200/50 rounded-xl">
+                      <div className="flex-1 grid grid-cols-2 gap-2 w-full">
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-wider text-stone-400">Room Number</label>
+                          <input
+                            type="text"
+                            value={room.number}
+                            onChange={(e) => {
+                              const updated = [...physicalRooms];
+                              updated[idx].number = e.target.value;
+                              setPhysicalRooms(updated);
+                            }}
+                            placeholder="e.g. 101"
+                            className="w-full p-1.5 border rounded-lg text-sm font-semibold text-dark-forest font-mono mt-0.5 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-wider text-stone-400">Floor</label>
+                          <select
+                            value={room.floor}
+                            onChange={(e) => {
+                              const updated = [...physicalRooms];
+                              updated[idx].floor = e.target.value;
+                              setPhysicalRooms(updated);
+                            }}
+                            className="w-full p-1.5 border rounded-lg text-sm font-medium mt-0.5 bg-white"
+                          >
+                            <option value="1st Floor">1st Floor</option>
+                            <option value="2nd Floor">2nd Floor</option>
+                            <option value="3rd Floor">3rd Floor</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Live Occupancy Status Badge */}
+                      <div className="sm:w-56 shrink-0 pt-1 sm:pt-0">
+                        {isOccupied ? (
+                          <div className="px-2.5 py-1.5 rounded-lg bg-teal-50 border border-teal-100 text-[11px] text-teal-800 font-sans">
+                            <span className="font-semibold block">● Occupied (Live)</span>
+                            <span className="text-teal-600 font-mono text-[10px] block truncate">
+                              {checkedIn.firstName} {checkedIn.lastName} ({checkedIn.checkInDate})
+                            </span>
+                          </div>
+                        ) : isReserved ? (
+                          <div className="px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-100 text-[11px] text-amber-800 font-sans">
+                            <span className="font-semibold block">● Reserved (Upcoming)</span>
+                            <span className="text-amber-600 font-mono text-[10px] block truncate">
+                              {reserved.firstName} {reserved.lastName} ({reserved.checkInDate})
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="px-2.5 py-1.5 rounded-lg bg-stone-100 border border-stone-200 text-[11px] text-stone-500 font-sans">
+                            <span className="font-medium block">○ Vacant & Ready</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = [...physicalRooms];
+                          updated.splice(idx, 1);
+                          setPhysicalRooms(updated);
+                        }}
+                        className="text-stone-400 hover:text-red-500 p-2 self-end sm:self-center"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  );
+                })}
+
+                {physicalRooms.length === 0 && (
+                  <div className="text-center p-6 border border-dashed rounded-xl text-stone-400 text-xs">
+                    No physical suites assigned to this category yet. Click 'Add Suite' to register room/floor assets.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="bg-white p-6 rounded-card shadow space-y-4">
-            <h3 className="font-bold border-b pb-2 text-dark-forest">Advanced Booking & Pricing Rules</h3>
+            <h3 className="font-bold border-b pb-2 text-dark-forest">Booking Rules & Policies</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <label className="block font-medium mb-1">Numeric Base Price (INR) *</label>
                 <input type="number" name="basePrice" value={pricingRules.basePrice} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="1" required />
                 <span className="text-[11px] text-stone-500">Must match display price for calculations</span>
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Weekend Price (INR)</label>
-                <input type="number" name="weekendPrice" value={pricingRules.weekendPrice} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="1" />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Extra Adult Price (INR)</label>
-                <input type="number" name="extraAdultPrice" value={pricingRules.extraAdultPrice} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="0" />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Extra Child Price (INR)</label>
-                <input type="number" name="extraChildPrice" value={pricingRules.extraChildPrice} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="0" />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Taxes Percent (%)</label>
-                <input type="number" name="taxesPercent" value={pricingRules.taxesPercent} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="0" max="100" />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Discount Percent (%)</label>
-                <input type="number" name="discountPercent" value={pricingRules.discountPercent} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="0" max="100" />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Cleaning Fee (INR)</label>
-                <input type="number" name="cleaningFee" value={pricingRules.cleaningFee} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="0" />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Platform Concierge Fee (INR)</label>
-                <input type="number" name="platformFee" value={pricingRules.platformFee} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="0" />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Security Deposit (INR)</label>
-                <input type="number" name="securityDeposit" value={pricingRules.securityDeposit} onChange={handlePricingRulesChange} className="w-full p-2 border rounded" min="0" />
               </div>
               <div>
                 <label className="block font-medium mb-1">Advance Percent required (%)</label>

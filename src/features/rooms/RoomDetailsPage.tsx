@@ -218,6 +218,17 @@ Thank you.`;
                 <Paragraph size="md" className="text-text-secondary leading-relaxed font-light">
                   {room.description}
                 </Paragraph>
+                <div className="bg-white border border-border/20 p-5 rounded-2xl flex items-center gap-3.5 mt-2 shadow-sm">
+                  <div className="w-10 h-10 rounded-full bg-gold-accent/10 text-gold-accent flex items-center justify-center shrink-0">
+                    <IconWrapper name="compass" size={18} />
+                  </div>
+                  <div>
+                    <span className="text-xs text-text-secondary block font-light uppercase tracking-wider">Property Inventory</span>
+                    <span className="text-sm font-medium text-dark-forest">
+                      There are exactly <strong className="text-gold-accent font-bold">{room.totalRooms || 6}</strong> {(room.occupancy === '1 Guest' || room.title.toLowerCase().includes('single')) ? 'Single' : 'Double'} Sharing Suites present inside this co-living building.
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Amenities Grid */}

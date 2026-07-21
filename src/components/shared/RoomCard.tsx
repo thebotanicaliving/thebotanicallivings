@@ -77,6 +77,14 @@ export function RoomCard({ room }: RoomCardProps) {
               </span>
             )}
           </div>
+
+          {/* Inventory Count Indicator */}
+          <div className="flex items-center gap-1.5 text-xs text-text-secondary font-light pt-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-gold-accent shrink-0" />
+            <span>
+              <strong>{room.totalRooms || 6}</strong> {(room.occupancy === '1 Guest' || room.title.toLowerCase().includes('single')) ? 'Single' : 'Double'} Sharing Suites present in the hotel
+            </span>
+          </div>
         </div>
 
         {/* Divider */}

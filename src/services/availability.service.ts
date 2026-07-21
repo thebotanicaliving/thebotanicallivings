@@ -210,9 +210,11 @@ export const availabilityService = {
     // 2. Fetch bookings
     const bookings = await this.getActiveBookings(roomId);
     
-    // 3. Fetch room characteristics (maxCapacity, currentResidents) from Firestore
+    // 3. Fetch room characteristics and physicalRooms from Firestore
     let maxCapacity = 2; // Default for double sharing
     let currentResidents = 0;
+    let physicalRooms: { number: string; floor: string }[] = [];
+
     if (db) {
       try {
         const { getDoc, doc } = await import('firebase/firestore');
@@ -221,50 +223,52 @@ export const availabilityService = {
           const roomData = roomSnap.data();
           maxCapacity = Number(roomData.maxCapacity || roomData.occupancy || 2);
           currentResidents = Number(roomData.currentResidents || 0);
+          if (roomData.physicalRooms && Array.isArray(roomData.physicalRooms)) {
+            physicalRooms = roomData.physicalRooms;
+          }
         }
       } catch (err) {
         console.warn('[checkRoomAvailability] Error getting room characteristics:', err);
       }
     }
 
-    const totalSlots = totalRoomsConfigured * maxCapacity;
-    const baseOccupiedSlots = currentResidents;
-
-    // Calculate overlapping bookings per single day to find peak occupancy
-    const checkInDate = new Date(checkIn);
-    const checkOutDate = new Date(checkOut);
-    let maxOverlappingSlots = 0;
-
-    // Loop through each night of the stay
-    const tempDate = new Date(checkInDate);
-    while (tempDate < checkOutDate) {
-      const currentDayStr = tempDate.toISOString().split('T')[0];
-      
-      // Count slots of active bookings for this specific night
-      let activeSlotsOnDay = 0;
-      bookings.forEach(b => {
-        if (b.checkInDate <= currentDayStr && b.checkOutDate > currentDayStr) {
-          activeSlotsOnDay += (b.guestsCount || b.adultsCount || 1);
-        }
-      });
-
-      const totalOccupiedSlotsOnDay = baseOccupiedSlots + activeSlotsOnDay;
-      if (totalOccupiedSlotsOnDay > maxOverlappingSlots) {
-        maxOverlappingSlots = totalOccupiedSlotsOnDay;
+    // Fallback if no physical rooms are registered on the room model
+    if (physicalRooms.length === 0) {
+      const isSingle = roomId.toLowerCase().includes('single');
+      if (isSingle) {
+        physicalRooms = [
+          { number: '101', floor: '1st Floor' },
+          { number: '102', floor: '1st Floor' },
+          { number: '201', floor: '2nd Floor' },
+          { number: '202', floor: '2nd Floor' },
+          { number: '301', floor: '3rd Floor' },
+          { number: '302', floor: '3rd Floor' }
+        ];
+      } else {
+        physicalRooms = [
+          { number: '103', floor: '1st Floor' },
+          { number: '104', floor: '1st Floor' },
+          { number: '203', floor: '2nd Floor' },
+          { number: '204', floor: '2nd Floor' },
+          { number: '303', floor: '3rd Floor' },
+          { number: '304', floor: '3rd Floor' }
+        ];
       }
-
-      tempDate.setDate(tempDate.getDate() + 1);
     }
 
-    const remainingSlots = Math.max(0, totalSlots - maxOverlappingSlots);
-    // For visual backward-compatibility on frontend
-    const remainingRooms = Math.max(0, totalRoomsConfigured - Math.ceil(maxOverlappingSlots / maxCapacity));
+    // 4. Calculate overlapping bookings during this window
+    const overlappingBookings = bookings.filter(b => isOverlapping(b.checkInDate, b.checkOutDate, checkIn, checkOut));
+    const bookedRoomNumbers = overlappingBookings.map(b => b.roomNumber).filter(Boolean);
+
+    // 5. Compute available physical rooms
+    const availablePhysicalRooms = physicalRooms.filter(r => !bookedRoomNumbers.includes(r.number));
+    const remainingRoomsCount = availablePhysicalRooms.length;
 
     return {
-      available: remainingSlots > 0,
-      remainingRooms,
-      totalRooms: totalRoomsConfigured,
-      bookedCount: maxOverlappingSlots - baseOccupiedSlots,
+      available: remainingRoomsCount > 0,
+      remainingRooms: remainingRoomsCount,
+      totalRooms: physicalRooms.length,
+      bookedCount: bookedRoomNumbers.length,
       isBlockedByMaintenance: false,
       conflictingBlocks: [],
       currentResidents,
