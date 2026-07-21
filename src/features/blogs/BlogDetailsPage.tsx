@@ -184,7 +184,7 @@ export function BlogDetailsPage() {
                   .markdown-body li {
                     margin-bottom: 0.4rem;
                   }
-                  .markdown-body img { max-width: 100%; height: auto; border-radius: 12px; margin: 2rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+                  .markdown-body img:not(.section-img) { max-width: 100%; height: auto; border-radius: 12px; margin: 2rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
                   .markdown-body blockquote {
                     border-left: 3px solid var(--color-gold-accent);
                     padding-left: 1rem;
@@ -221,7 +221,7 @@ export function BlogDetailsPage() {
                                   <img 
                                     src={section.imageUrl} 
                                     alt={section.imageCaption || ''} 
-                                    className="w-full object-cover max-h-[350px] hover:scale-[1.02] transition-transform duration-500" 
+                                    className="section-img w-full object-cover max-h-[350px] hover:scale-[1.02] transition-transform duration-500" 
                                     referrerPolicy="no-referrer"
                                   />
                                 </div>
@@ -236,7 +236,7 @@ export function BlogDetailsPage() {
                                   <img 
                                     src={section.imageUrlSecond} 
                                     alt={section.imageCaptionSecond || ''} 
-                                    className="w-full object-cover max-h-[350px] hover:scale-[1.02] transition-transform duration-500" 
+                                    className="section-img w-full object-cover max-h-[350px] hover:scale-[1.02] transition-transform duration-500" 
                                     referrerPolicy="no-referrer"
                                   />
                                 </div>
@@ -256,7 +256,7 @@ export function BlogDetailsPage() {
                               <img 
                                 src={section.imageUrl} 
                                 alt={section.imageCaption || ''} 
-                                className="w-full object-cover max-h-[500px] hover:scale-[1.01] transition-transform duration-700" 
+                                className="section-img w-full object-cover max-h-[500px] hover:scale-[1.01] transition-transform duration-700" 
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -281,7 +281,7 @@ export function BlogDetailsPage() {
                                 <img 
                                   src={section.imageUrl} 
                                   alt={section.imageCaption || ''} 
-                                  className="w-full object-cover max-h-[400px] hover:scale-[1.02] transition-transform duration-500" 
+                                  className="section-img w-full object-cover max-h-[400px] hover:scale-[1.02] transition-transform duration-500" 
                                   referrerPolicy="no-referrer"
                                 />
                               </div>
