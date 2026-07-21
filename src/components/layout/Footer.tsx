@@ -151,6 +151,39 @@ export function Footer() {
         </div>
       </div>
 
+      {/* Specialty Coliving & SEO Locations Links */}
+      <div className="max-w-[1300px] mx-auto px-5 md:px-8 xl:px-12 mt-12 pt-8 border-t border-primary-forest/10">
+        <h4 className="font-button text-xs font-semibold uppercase tracking-widest text-gold-accent mb-4">
+          Specialty Coliving & Locations
+        </h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
+          <Link to="/coliving-in-kondapur" className="font-sans text-xs text-stone hover:text-warm-cream transition-colors duration-250">
+            Coliving in Kondapur
+          </Link>
+          <Link to="/coliving-near-financial-district" className="font-sans text-xs text-stone hover:text-warm-cream transition-colors duration-250">
+            Coliving Near Financial District
+          </Link>
+          <Link to="/coliving-near-gachibowli" className="font-sans text-xs text-stone hover:text-warm-cream transition-colors duration-250">
+            Coliving Near Gachibowli
+          </Link>
+          <Link to="/coliving-near-hitech-city" className="font-sans text-xs text-stone hover:text-warm-cream transition-colors duration-250">
+            Coliving Near Hitech City
+          </Link>
+          <Link to="/premium-coliving-hyderabad" className="font-sans text-xs text-stone hover:text-warm-cream transition-colors duration-250">
+            Premium Coliving Hyderabad
+          </Link>
+          <Link to="/fully-furnished-rooms-kondapur" className="font-sans text-xs text-stone hover:text-warm-cream transition-colors duration-250">
+            Fully Furnished Rooms Kondapur
+          </Link>
+          <Link to="/single-sharing-rooms-kondapur" className="font-sans text-xs text-stone hover:text-warm-cream transition-colors duration-250">
+            Single Sharing Rooms Kondapur
+          </Link>
+          <Link to="/twin-sharing-rooms-kondapur" className="font-sans text-xs text-stone hover:text-warm-cream transition-colors duration-250">
+            Twin Sharing Rooms Kondapur
+          </Link>
+        </div>
+      </div>
+
       {/* Border & Copyright */}
       <div className="max-w-[1300px] mx-auto px-5 md:px-8 xl:px-12 mt-16 pt-8 border-t border-primary-forest/20 flex flex-col md:flex-row items-center justify-between text-xs text-stone/50 space-y-4 md:space-y-0 text-center md:text-left">
         <div>{`© ${new Date().getFullYear()} ${Hotel.name}. All Rights Reserved.`}</div>

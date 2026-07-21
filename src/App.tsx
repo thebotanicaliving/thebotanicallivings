@@ -32,6 +32,7 @@ import { BookingStatusPage } from '@/features/booking/BookingStatusPage';
 import { ContactPage } from '@/features/contact/ContactPage';
 import { PrivacyPolicyPage } from '@/features/legal/PrivacyPolicyPage';
 import { TermsPage } from '@/features/legal/TermsPage';
+import { SeoLandingPage } from '@/features/seo/SeoLandingPage';
 
 // Admin imports
 import { Login } from '@/features/admin/Login';
@@ -238,6 +239,17 @@ export default function App() {
         <Route path="/" element={<HomeView />} />
         <Route path="/rooms" element={<RoomsPage />} />
         <Route path="/rooms/:slug" element={<RoomDetailsPage />} />
+        
+        {/* SEO Landing Pages */}
+        <Route path="/coliving-in-kondapur" element={<SeoLandingPage />} />
+        <Route path="/coliving-near-financial-district" element={<SeoLandingPage />} />
+        <Route path="/coliving-near-gachibowli" element={<SeoLandingPage />} />
+        <Route path="/coliving-near-hitech-city" element={<SeoLandingPage />} />
+        <Route path="/premium-coliving-hyderabad" element={<SeoLandingPage />} />
+        <Route path="/fully-furnished-rooms-kondapur" element={<SeoLandingPage />} />
+        <Route path="/single-sharing-rooms-kondapur" element={<SeoLandingPage />} />
+        <Route path="/twin-sharing-rooms-kondapur" element={<SeoLandingPage />} />
+
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogDetailsPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
